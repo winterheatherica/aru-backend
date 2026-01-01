@@ -1,6 +1,6 @@
 CREATE TABLE histories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  language language_type NOT NULL,
+  language language NOT NULL,
   year integer,
   title text,
   description text,
