@@ -1,0 +1,6 @@
+CREATE TYPE employment AS ENUM (
+  'FULL_TIME',
+  'PART_TIME',
+  'INTERNSHIP',
+  'CONTRACT'
+);
