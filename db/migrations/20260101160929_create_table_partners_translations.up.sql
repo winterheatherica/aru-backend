@@ -1,7 +1,7 @@
 CREATE TABLE partner_translations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   partner_id uuid NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
-  language language_type NOT NULL,
+  language language NOT NULL,
   title text,
   alt text,
   description text,

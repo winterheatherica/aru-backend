@@ -1,7 +1,7 @@
 CREATE TABLE promo_slide_translations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   promo_slide_id uuid NOT NULL REFERENCES promo_slides(id) ON DELETE CASCADE,
-  language language_type NOT NULL,
+  language language NOT NULL,
   title text,
   alt text,
   created_at timestamptz DEFAULT now(),
