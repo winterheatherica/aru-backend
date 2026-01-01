@@ -1,0 +1,1 @@
+DROP TYPE IF EXISTS revoked_reason;

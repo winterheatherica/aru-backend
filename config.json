@@ -1,0 +1,33 @@
+{
+  "app": {
+    "name": "aru-backend",
+    "env": "local"
+  },
+  "web": {
+    "prefork": false,
+    "port": 3001
+  },
+  "log": {
+    "level": 6
+  },
+  "database": {
+    "username": "postgres",
+    "password": "erika",
+    "host": "localhost",
+    "port": 15552,
+    "name": "aru-db",
+    "pool": {
+      "idle": 10,
+      "max": 100,
+      "lifetime": 300
+    }
+  },
+  "minio": {
+    "endpoint": "127.0.0.1:9000",
+    "accessKey": "minioadmin",
+    "secretKey": "minioadmin",
+    "useSSL": false,
+    "bucket": "aru-assets",
+    "publicBaseURL": "http://127.0.0.1:9000/aru-assets"
+  }
+}
