@@ -1,0 +1,4 @@
+DROP INDEX IF EXISTS idx_service_matrix_column_translations_language;
+DROP INDEX IF EXISTS idx_service_matrix_column_translations_column;
+
+DROP TABLE IF EXISTS service_matrix_column_translations;
