@@ -4,7 +4,6 @@ CREATE TABLE service_matrix_cells (
   column_id uuid NOT NULL REFERENCES service_matrix_columns(id) ON DELETE CASCADE,
   value_boolean boolean,
   value_number numeric,
-  value_text text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
   UNIQUE (row_id, column_id)

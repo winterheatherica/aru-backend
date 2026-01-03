@@ -3,7 +3,6 @@ CREATE TABLE service_matrix_row_translations (
   row_id uuid NOT NULL REFERENCES service_matrix_rows(id) ON DELETE CASCADE,
   language language NOT NULL,
   feature text NOT NULL,
-  hint text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
   UNIQUE (row_id, language)
