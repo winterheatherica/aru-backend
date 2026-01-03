@@ -4,7 +4,7 @@ CREATE TABLE hero_slides (
   image_path text NOT NULL,
   order_index integer DEFAULT 0,
   is_active boolean DEFAULT true,
-
+  banner banner NOT NULL DEFAULT 'POLISH',
   uploaded_by uuid REFERENCES users(id) ON DELETE SET NULL,
 
   created_at timestamptz DEFAULT now(),

@@ -3,7 +3,6 @@ CREATE TABLE hero_slide_translations (
   hero_slide_id uuid NOT NULL REFERENCES hero_slides(id) ON DELETE CASCADE,
 
   language language NOT NULL,
-  banner hero NOT NULL DEFAULT 'POLISH',
 
   alt text NOT NULL,
   title text NOT NULL,
