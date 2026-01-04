@@ -24,7 +24,6 @@ func HeroSlideToModel(slide entity.HeroSlide, lang string, baseURL string) *mode
 	alt := ""
 	var title *string
 	var ctaLabel *string
-	banner := "POLISH"
 
 	if trans != nil {
 		if trans.Alt != nil {
@@ -32,7 +31,6 @@ func HeroSlideToModel(slide entity.HeroSlide, lang string, baseURL string) *mode
 		}
 		title = trans.Title
 		ctaLabel = trans.CtaLabel
-		banner = trans.Banner
 	}
 
 	src := buildMinioURL(baseURL, slide.ImagePath)
@@ -43,7 +41,7 @@ func HeroSlideToModel(slide entity.HeroSlide, lang string, baseURL string) *mode
 		Alt:      alt,
 		Title:    title,
 		CtaLabel: ctaLabel,
-		Banner:   banner,
+		Banner:   slide.Banner,
 		Order:    slide.OrderIndex,
 	}
 }

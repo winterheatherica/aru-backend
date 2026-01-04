@@ -10,8 +10,8 @@ type RouteConfig struct {
 	App            *fiber.App
 	AuthMiddleware fiber.Handler
 
-	UserController        *http.UserController
-	SiteContentController *http.SiteContentController
+	UserController *http.UserController
+	HomeController *http.HomeController
 }
 
 func (c *RouteConfig) Setup() {
@@ -20,8 +20,9 @@ func (c *RouteConfig) Setup() {
 }
 
 func (c *RouteConfig) SetupGuestRoute() {
-	c.App.Get("/api/site", c.SiteContentController.GetSiteContent)
+	c.App.Get("/api/home", c.HomeController.GetHome)
 }
+
 func (c *RouteConfig) SetupAuthRoute() {
 
 }

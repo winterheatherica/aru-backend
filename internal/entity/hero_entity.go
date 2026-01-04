@@ -11,6 +11,7 @@ type HeroSlide struct {
 	ImagePath  string    `gorm:"column:image_path;not null" json:"image_path"`
 	OrderIndex int       `gorm:"column:order_index;default:0" json:"order_index"`
 	IsActive   bool      `gorm:"column:is_active;default:true" json:"is_active"`
+	Banner     string    `gorm:"column:banner;type:banner;not null;default:POLISH" json:"banner"`
 
 	UploadedBy *uuid.UUID `gorm:"column:uploaded_by" json:"uploaded_by"`
 
@@ -29,7 +30,6 @@ type HeroSlideTranslation struct {
 	HeroSlideID uuid.UUID `gorm:"column:hero_slide_id;type:uuid;not null" json:"hero_slide_id"`
 
 	Language string `gorm:"column:language;type:language;not null" json:"language"`
-	Banner   string `gorm:"column:banner;type:hero;not null;default:POLISH" json:"banner"`
 
 	Alt      *string `gorm:"column:alt" json:"alt,omitempty"`
 	Title    *string `gorm:"column:title" json:"title,omitempty"`

@@ -61,12 +61,12 @@ func Bootstrap(config *BootstrapConfig) {
 
 	heroRepo := repository.NewHeroRepository(config.DB)
 
-	siteContentUsecase := usecase.NewSiteContentUsecase(heroRepo, config.MinioConfig.PublicBaseURL)
-	siteContentController := http.NewSiteContentController(siteContentUsecase)
+	HomeUsecase := usecase.NewHomeUsecase(heroRepo, config.MinioConfig.PublicBaseURL)
+	HomeController := http.NewHomeController(HomeUsecase)
 
 	routeConfig := route.RouteConfig{
-		App:                   config.App,
-		SiteContentController: siteContentController,
+		App:            config.App,
+		HomeController: HomeController,
 	}
 
 	routeConfig.Setup()
