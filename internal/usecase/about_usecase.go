@@ -14,17 +14,24 @@ type AboutUsecase interface {
 
 type aboutUsecaseImpl struct {
 	historyRepo repository.HistoryRepository
+	awardRepo   repository.AwardRepository
+	baseURL     string
 }
 
 type AboutResponse struct {
 	Histories []model.History `json:"histories"`
+	Awards    []model.Award   `json:"awards"`
 }
 
 func NewAboutUsecase(
 	historyRepo repository.HistoryRepository,
+	awardRepo repository.AwardRepository,
+	baseURL string,
 ) AboutUsecase {
 	return &aboutUsecaseImpl{
 		historyRepo: historyRepo,
+		awardRepo:   awardRepo,
+		baseURL:     baseURL,
 	}
 }
 
@@ -40,7 +47,18 @@ func (u *aboutUsecaseImpl) GetAbout(
 
 	histories := converter.HistoryListToModel(historyEntities)
 
+	awardEntities, err := u.awardRepo.FindActiveByLanguage(ctx, lang)
+	if err != nil {
+		return nil, err
+	}
+	awards := converter.AwardListToModel(
+		awardEntities,
+		lang,
+		u.baseURL,
+	)
+
 	return &AboutResponse{
 		Histories: histories,
+		Awards:    awards,
 	}, nil
 }
