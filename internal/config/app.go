@@ -64,6 +64,8 @@ func Bootstrap(config *BootstrapConfig) {
 	partnerRepo := repository.NewPartnerRepository(config.DB)
 	clientRepo := repository.NewClientRepository(config.DB)
 
+	historyRepo := repository.NewHistoryRepository(config.DB)
+
 	homeUsecase := usecase.NewHomeUsecase(
 		heroRepo,
 		promoRepo,
@@ -72,11 +74,15 @@ func Bootstrap(config *BootstrapConfig) {
 		config.MinioConfig.PublicBaseURL,
 	)
 
+	aboutUsecase := usecase.NewAboutUsecase(historyRepo)
+
 	homeController := http.NewHomeController(homeUsecase)
+	aboutController := http.NewAboutController(aboutUsecase)
 
 	routeConfig := route.RouteConfig{
-		App:            config.App,
-		HomeController: homeController,
+		App:             config.App,
+		HomeController:  homeController,
+		AboutController: aboutController,
 	}
 
 	routeConfig.Setup()
