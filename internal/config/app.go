@@ -96,12 +96,33 @@ func Bootstrap(config *BootstrapConfig) {
 
 	careerController := http.NewCareerController(careerUsecase)
 
+	// --- Article Module ---
+	articleRepo := repository.NewNewsArticleRepository(config.DB)
+
+	articleUsecase := usecase.NewArticleUsecase(
+		articleRepo,
+		config.MinioConfig.PublicBaseURL,
+	)
+
+	articleController := http.NewArticleController(articleUsecase)
+
+	// --- Category Module ---
+	categoryRepo := repository.NewNewsCategoryRepository(config.DB)
+
+	categoryUsecase := usecase.NewCategoryUsecase(
+		categoryRepo,
+	)
+
+	categoryController := http.NewCategoryController(categoryUsecase)
+
 	// --- Setup Routes ---
 	routeConfig := route.RouteConfig{
-		App:              config.App,
-		HomeController:   homeController,
-		AboutController:  aboutController,
-		CareerController: careerController,
+		App:                config.App,
+		HomeController:     homeController,
+		AboutController:    aboutController,
+		CareerController:   careerController,
+		ArticleController:  articleController,
+		CategoryController: categoryController,
 	}
 
 	routeConfig.Setup()

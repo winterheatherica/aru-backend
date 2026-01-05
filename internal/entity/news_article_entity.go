@@ -9,7 +9,7 @@ import (
 type NewsArticle struct {
 	ID uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
 
-	ImageURL *string `gorm:"column:image_url" json:"image_url,omitempty"`
+	ImagePath *string `gorm:"column:image_path" json:"image_path,omitempty"`
 
 	IsActive bool `gorm:"column:is_active;default:true" json:"is_active"`
 
