@@ -10,14 +10,8 @@ func PromoSlideToModel(
 	lang string,
 	baseURL string,
 ) *model.PromoSlide {
-	var trans *entity.PromoSlideTranslation
 
-	for i := range slide.Translations {
-		if slide.Translations[i].Language == lang {
-			trans = &slide.Translations[i]
-			break
-		}
-	}
+	trans := findPromoTranslation(slide, lang)
 
 	alt := ""
 	var title *string
@@ -29,11 +23,9 @@ func PromoSlideToModel(
 		title = trans.Title
 	}
 
-	src := buildMinioURL(baseURL, slide.ImagePath)
-
 	return &model.PromoSlide{
 		ID:    slide.ID,
-		Src:   src,
+		Src:   BuildAssetURL(baseURL, slide.ImagePath),
 		Alt:   alt,
 		Title: title,
 		Order: slide.OrderIndex,
@@ -45,14 +37,25 @@ func PromoSlideListToModel(
 	lang string,
 	baseURL string,
 ) []model.PromoSlide {
+
 	result := make([]model.PromoSlide, 0, len(slides))
 
-	for _, s := range slides {
-		m := PromoSlideToModel(s, lang, baseURL)
-		if m != nil {
-			result = append(result, *m)
-		}
+	for _, slide := range slides {
+		result = append(result, *PromoSlideToModel(slide, lang, baseURL))
 	}
 
 	return result
+}
+
+func findPromoTranslation(
+	slide entity.PromoSlide,
+	lang string,
+) *entity.PromoSlideTranslation {
+
+	for i := range slide.Translations {
+		if slide.Translations[i].Language == lang {
+			return &slide.Translations[i]
+		}
+	}
+	return nil
 }

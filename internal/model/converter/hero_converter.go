@@ -3,23 +3,15 @@ package converter
 import (
 	"aru-backend/internal/entity"
 	"aru-backend/internal/model"
-	"strings"
 )
 
-func buildMinioURL(baseURL, objectKey string) string {
-	key := strings.TrimPrefix(objectKey, "/")
-	return strings.TrimRight(baseURL, "/") + "/" + key
-}
+func HeroSlideToModel(
+	slide entity.HeroSlide,
+	lang string,
+	baseURL string,
+) *model.HeroSlide {
 
-func HeroSlideToModel(slide entity.HeroSlide, lang string, baseURL string) *model.HeroSlide {
-	var trans *entity.HeroSlideTranslation
-
-	for i := range slide.Translations {
-		if slide.Translations[i].Language == lang {
-			trans = &slide.Translations[i]
-			break
-		}
-	}
+	trans := findHeroTranslation(slide, lang)
 
 	alt := ""
 	var title *string
@@ -33,11 +25,9 @@ func HeroSlideToModel(slide entity.HeroSlide, lang string, baseURL string) *mode
 		ctaLabel = trans.CtaLabel
 	}
 
-	src := buildMinioURL(baseURL, slide.ImagePath)
-
 	return &model.HeroSlide{
 		ID:       slide.ID,
-		Src:      src,
+		Src:      BuildAssetURL(baseURL, slide.ImagePath),
 		Alt:      alt,
 		Title:    title,
 		CtaLabel: ctaLabel,
@@ -46,13 +36,30 @@ func HeroSlideToModel(slide entity.HeroSlide, lang string, baseURL string) *mode
 	}
 }
 
-func HeroSlideListToModel(slides []entity.HeroSlide, lang string, baseURL string) []model.HeroSlide {
+func HeroSlideListToModel(
+	slides []entity.HeroSlide,
+	lang string,
+	baseURL string,
+) []model.HeroSlide {
+
 	result := make([]model.HeroSlide, 0, len(slides))
-	for _, s := range slides {
-		m := HeroSlideToModel(s, lang, baseURL)
-		if m != nil {
-			result = append(result, *m)
+
+	for _, slide := range slides {
+		result = append(result, *HeroSlideToModel(slide, lang, baseURL))
+	}
+
+	return result
+}
+
+func findHeroTranslation(
+	slide entity.HeroSlide,
+	lang string,
+) *entity.HeroSlideTranslation {
+
+	for i := range slide.Translations {
+		if slide.Translations[i].Language == lang {
+			return &slide.Translations[i]
 		}
 	}
-	return result
+	return nil
 }

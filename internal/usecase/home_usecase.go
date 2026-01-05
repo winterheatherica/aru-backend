@@ -13,33 +13,63 @@ type HomeUsecase interface {
 }
 
 type homeUsecaseImpl struct {
-	heroRepo repository.HeroRepository
-	baseURL  string
+	heroRepo    repository.HeroRepository
+	promoRepo   repository.PromoRepository
+	partnerRepo repository.PartnerRepository
+
+	baseURL string
 }
 
 type HomeResponse struct {
-	Hero []model.HeroSlide `json:"hero"`
+	Hero            []model.HeroSlide  `json:"hero"`
+	Promo           []model.PromoSlide `json:"promo"`
+	PartnerScroller []model.Partner    `json:"partner_scroller"`
 }
 
 func NewHomeUsecase(
 	heroRepo repository.HeroRepository,
+	promoRepo repository.PromoRepository,
+	partnerRepo repository.PartnerRepository,
 	baseURL string,
 ) HomeUsecase {
 	return &homeUsecaseImpl{
-		heroRepo: heroRepo,
-		baseURL:  baseURL,
+		heroRepo:    heroRepo,
+		promoRepo:   promoRepo,
+		partnerRepo: partnerRepo,
+		baseURL:     baseURL,
 	}
 }
 
-func (u *homeUsecaseImpl) GetHome(ctx context.Context, lang string) (*HomeResponse, error) {
-	slides, err := u.heroRepo.FindActiveByLanguage(ctx, lang)
+func (u *homeUsecaseImpl) GetHome(
+	ctx context.Context,
+	lang string,
+) (*HomeResponse, error) {
+
+	heroSlides, err := u.heroRepo.FindActiveByLanguage(ctx, lang)
 	if err != nil {
 		return nil, err
 	}
+	hero := converter.HeroSlideListToModel(heroSlides, lang, u.baseURL)
 
-	hero := converter.HeroSlideListToModel(slides, lang, u.baseURL)
+	promoSlides, err := u.promoRepo.FindActiveByLanguage(ctx, lang)
+	if err != nil {
+		return nil, err
+	}
+	promo := converter.PromoSlideListToModel(promoSlides, lang, u.baseURL)
+
+	partnerEntities, err := u.partnerRepo.FindActiveForScroller(ctx, lang)
+	if err != nil {
+		return nil, err
+	}
+	partnerScroller := converter.PartnerListToModel(
+		partnerEntities,
+		lang,
+		u.baseURL,
+	)
 
 	return &HomeResponse{
-		Hero: hero,
+		Hero:            hero,
+		Promo:           promo,
+		PartnerScroller: partnerScroller,
 	}, nil
 }
