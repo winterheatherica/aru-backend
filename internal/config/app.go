@@ -59,13 +59,11 @@ func Bootstrap(config *BootstrapConfig) {
 
 	// routeConfig.Setup()
 
+	// --- Home Module ---
 	heroRepo := repository.NewHeroRepository(config.DB)
 	promoRepo := repository.NewPromoRepository(config.DB)
 	partnerRepo := repository.NewPartnerRepository(config.DB)
 	clientRepo := repository.NewClientRepository(config.DB)
-
-	historyRepo := repository.NewHistoryRepository(config.DB)
-	awardRepo := repository.NewAwardRepository(config.DB)
 
 	homeUsecase := usecase.NewHomeUsecase(
 		heroRepo,
@@ -75,19 +73,35 @@ func Bootstrap(config *BootstrapConfig) {
 		config.MinioConfig.PublicBaseURL,
 	)
 
+	homeController := http.NewHomeController(homeUsecase)
+
+	// --- About Module ---
+	historyRepo := repository.NewHistoryRepository(config.DB)
+	awardRepo := repository.NewAwardRepository(config.DB)
+
 	aboutUsecase := usecase.NewAboutUsecase(
 		historyRepo,
 		awardRepo,
 		config.MinioConfig.PublicBaseURL,
 	)
 
-	homeController := http.NewHomeController(homeUsecase)
 	aboutController := http.NewAboutController(aboutUsecase)
 
+	// --- Career Module ---
+	careerVacancyRepo := repository.NewCareerVacancyRepository(config.DB)
+
+	careerUsecase := usecase.NewCareerUsecase(
+		careerVacancyRepo,
+	)
+
+	careerController := http.NewCareerController(careerUsecase)
+
+	// --- Setup Routes ---
 	routeConfig := route.RouteConfig{
-		App:             config.App,
-		HomeController:  homeController,
-		AboutController: aboutController,
+		App:              config.App,
+		HomeController:   homeController,
+		AboutController:  aboutController,
+		CareerController: careerController,
 	}
 
 	routeConfig.Setup()
