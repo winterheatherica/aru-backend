@@ -68,6 +68,16 @@ func Bootstrap(config *BootstrapConfig) {
 
 	serviceController := http.NewServiceController(serviceUsecase)
 
+	// --- Reservation Module ---
+	spaceRoomRepo := repository.NewSpaceRoomRepository(config.DB)
+
+	reservationUsecase := usecase.NewReservationUsecase(
+		spaceRoomRepo,
+		config.MinioConfig.PublicBaseURL,
+	)
+
+	reservationController := http.NewReservationController(reservationUsecase)
+
 	// --- Information Module ---
 	newsArticleRepo := repository.NewNewsArticleRepository(config.DB)
 
@@ -108,14 +118,17 @@ func Bootstrap(config *BootstrapConfig) {
 
 	// --- Setup Routes ---
 	routeConfig := route.RouteConfig{
-		App:                   config.App,
+		App: config.App,
+
 		HomeController:        homeController,
 		AboutController:       aboutController,
 		ServiceController:     serviceController,
+		ReservationController: reservationController,
 		InformationController: informationController,
 		CareerController:      careerController,
-		ArticleController:     articleController,
-		CategoryController:    categoryController,
+
+		ArticleController:  articleController,
+		CategoryController: categoryController,
 	}
 
 	routeConfig.Setup()
