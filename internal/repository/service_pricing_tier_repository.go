@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"aru-backend/internal/entity"
 	"context"
+
+	"aru-backend/internal/entity"
 
 	"gorm.io/gorm"
 )
@@ -29,13 +30,11 @@ func (r *servicePricingRepositoryImpl) FindActiveByService(
 
 	err := r.db.WithContext(ctx).
 		Model(&entity.ServicePricingTier{}).
-		Joins("JOIN service_pricing_tier_translations t ON t.tier_id = service_pricing_tiers.id").
-		Where("service_pricing_tiers.is_active = ?", true).
-		Where("service_pricing_tiers.service = ?", service).
-		Where("t.language = ?", lang).
-		Order("service_pricing_tiers.created_at DESC").
-		Limit(3).
 		Preload("Translations", "language = ?", lang).
+		Where("is_active = ?", true).
+		Where("service = ?", service).
+		Order("created_at DESC").
+		Limit(3).
 		Find(&tiers).Error
 
 	if err != nil {

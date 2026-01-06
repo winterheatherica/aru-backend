@@ -31,11 +31,9 @@ func (r *newsCategoryRepositoryImpl) FindActiveBySlug(
 	var category entity.NewsCategory
 
 	err := r.db.WithContext(ctx).
-		Joins("JOIN news_category_translations t ON t.category_id = news_categories.id").
-		Where("news_categories.is_active = ?", true).
-		Where("t.language = ?", lang).
-		Where("t.slug = ?", slug).
 		Preload("Translations", "language = ?", lang).
+		Where("is_active = ?", true).
+		Where("id IN (?)", r.subQueryCategoryIDBySlug(slug, lang)).
 		First(&category).Error
 
 	if err != nil {
@@ -43,4 +41,16 @@ func (r *newsCategoryRepositoryImpl) FindActiveBySlug(
 	}
 
 	return &category, nil
+}
+
+func (r *newsCategoryRepositoryImpl) subQueryCategoryIDBySlug(
+	slug string,
+	lang string,
+) *gorm.DB {
+
+	return r.db.
+		Table("news_category_translations").
+		Select("category_id").
+		Where("slug = ?", slug).
+		Where("language = ?", lang)
 }
