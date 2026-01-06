@@ -54,14 +54,19 @@ func Bootstrap(config *BootstrapConfig) {
 
 	aboutController := http.NewAboutController(aboutUsecase)
 
-	// --- Career Module ---
-	careerVacancyRepo := repository.NewCareerVacancyRepository(config.DB)
+	// --- Service Module ---
+	serviceGalleryRepo := repository.NewServiceGalleryRepository(config.DB)
+	servicePricingRepo := repository.NewServicePricingRepository(config.DB)
+	serviceMatrixRepo := repository.NewServiceMatrixRepository(config.DB)
 
-	careerUsecase := usecase.NewCareerUsecase(
-		careerVacancyRepo,
+	serviceUsecase := usecase.NewServiceUsecase(
+		serviceGalleryRepo,
+		servicePricingRepo,
+		serviceMatrixRepo,
+		config.MinioConfig.PublicBaseURL,
 	)
 
-	careerController := http.NewCareerController(careerUsecase)
+	serviceController := http.NewServiceController(serviceUsecase)
 
 	// --- Information Module ---
 	newsArticleRepo := repository.NewNewsArticleRepository(config.DB)
@@ -72,6 +77,15 @@ func Bootstrap(config *BootstrapConfig) {
 	)
 
 	informationController := http.NewInformationController(informationUsecase)
+
+	// --- Career Module ---
+	careerVacancyRepo := repository.NewCareerVacancyRepository(config.DB)
+
+	careerUsecase := usecase.NewCareerUsecase(
+		careerVacancyRepo,
+	)
+
+	careerController := http.NewCareerController(careerUsecase)
 
 	// --- Article Module ---
 	articleRepo := repository.NewNewsArticleRepository(config.DB)
@@ -97,6 +111,7 @@ func Bootstrap(config *BootstrapConfig) {
 		App:                   config.App,
 		HomeController:        homeController,
 		AboutController:       aboutController,
+		ServiceController:     serviceController,
 		InformationController: informationController,
 		CareerController:      careerController,
 		ArticleController:     articleController,
