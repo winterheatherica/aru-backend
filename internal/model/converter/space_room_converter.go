@@ -70,15 +70,10 @@ func SpaceRoomToCardModel(
 
 		Facilities: tr.Facilities,
 
-		Rating:     nil,
-		RatingText: nil,
-
 		IsAvailable: isAvailable,
 		StatusText:  statusText,
 
 		Price: nil,
-
-		Tags: []string{},
 
 		ActionLabel: actionLabel,
 		ActionState: actionState,
@@ -111,4 +106,87 @@ func isRoomAvailable(
 		}
 	}
 	return true
+}
+
+func SpaceRoomToDetailModel(
+	room entity.SpaceRoom,
+	lang string,
+	baseURL string,
+) *model.SpaceRoomDetail {
+
+	tr := findSpaceRoomTranslation(room, lang)
+	if tr == nil {
+		return nil
+	}
+
+	// --- images ---
+	images := make([]model.SpaceRoomImage, 0)
+
+	for _, img := range room.Images {
+		it := findSpaceRoomImageTranslation(img, lang)
+
+		url := BuildAssetURL(baseURL, img.ImageURL)
+
+		var alt *string
+		var title *string
+
+		if it != nil {
+			alt = it.Alt
+			title = it.Title
+		}
+
+		images = append(images, model.SpaceRoomImage{
+			URL:   url,
+			Alt:   alt,
+			Title: title,
+		})
+	}
+
+	isAvailable := isRoomAvailable(room.Bookings, time.Now())
+
+	statusText := "Available"
+	actionLabel := "View & Book"
+	actionState := "active"
+
+	if !isAvailable {
+		statusText = "Fully booked"
+		actionLabel = "Unavailable"
+		actionState = "disabled"
+	}
+
+	return &model.SpaceRoomDetail{
+		ID: room.ID,
+
+		Slug: tr.Slug,
+
+		Title:       tr.Title,
+		Description: tr.Description,
+
+		Images: images,
+
+		Capacity: room.Capacity,
+		Floor:    room.Floor,
+
+		Facilities: tr.Facilities,
+
+		IsAvailable: isAvailable,
+		StatusText:  statusText,
+		Price:       nil,
+
+		ActionLabel: actionLabel,
+		ActionState: actionState,
+	}
+}
+
+func findSpaceRoomImageTranslation(
+	image entity.SpaceRoomImage,
+	lang string,
+) *entity.SpaceRoomImageTranslation {
+
+	for i := range image.Translations {
+		if image.Translations[i].Language == lang {
+			return &image.Translations[i]
+		}
+	}
+	return nil
 }

@@ -19,16 +19,41 @@ type SpaceRoomCard struct {
 
 	Facilities []string `json:"facilities"`
 
-	Rating     *float64 `json:"rating,omitempty"`
-	RatingText *string  `json:"rating_text,omitempty"`
+	IsAvailable bool   `json:"is_available"`
+	StatusText  string `json:"status_text"`
+
+	Price *float64 `json:"price,omitempty"`
+
+	ActionLabel string `json:"action_label"`
+	ActionState string `json:"action_state"`
+}
+
+type SpaceRoomDetail struct {
+	ID uuid.UUID `json:"id"`
+
+	Slug string `json:"slug"`
+
+	Title       string  `json:"title"`
+	Description *string `json:"description,omitempty"`
+
+	Images []SpaceRoomImage `json:"images"`
+
+	Capacity *int `json:"capacity,omitempty"`
+	Floor    *int `json:"floor,omitempty"`
+
+	Facilities []string `json:"facilities"`
 
 	IsAvailable bool   `json:"is_available"`
 	StatusText  string `json:"status_text"`
 
 	Price *float64 `json:"price,omitempty"`
 
-	Tags []string `json:"tags"`
-
 	ActionLabel string `json:"action_label"`
 	ActionState string `json:"action_state"`
+}
+
+type SpaceRoomImage struct {
+	URL   string  `json:"url"`
+	Alt   *string `json:"alt,omitempty"`
+	Title *string `json:"title,omitempty"`
 }

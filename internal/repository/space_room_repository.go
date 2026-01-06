@@ -78,3 +78,27 @@ func (r *spaceRoomRepositoryImpl) subQueryRoomIDBySlug(
 		Where("slug = ?", slug).
 		Where("language = ?", lang)
 }
+
+func (r *spaceRoomRepositoryImpl) FindActiveDetailBySlug(
+	ctx context.Context,
+	slug string,
+	lang string,
+) (*entity.SpaceRoom, error) {
+
+	var room entity.SpaceRoom
+
+	err := r.db.WithContext(ctx).
+		Preload("Translations", "language = ?", lang).
+		Preload("Images", "is_active = ?", true).
+		Preload("Images.Translations", "language = ?", lang).
+		Preload("Bookings").
+		Where("is_active = ?", true).
+		Where("id IN (?)", r.subQueryRoomIDBySlug(slug, lang)).
+		First(&room).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &room, nil
+}

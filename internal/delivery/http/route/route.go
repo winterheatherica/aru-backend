@@ -19,6 +19,8 @@ type RouteConfig struct {
 	InformationController *http.InformationController
 	CareerController      *http.CareerController
 
+	RoomController *http.RoomController
+
 	ArticleController  *http.ArticleController
 	CategoryController *http.CategoryController
 }
@@ -37,8 +39,11 @@ func (c *RouteConfig) SetupGuestRoute() {
 	c.App.Get("/api/information", c.InformationController.GetInformation)
 	c.App.Get("/api/career", c.CareerController.GetCareers)
 
-	c.App.Get("/api/category/:slug", c.CategoryController.GetCategory)
+	c.App.Get("/api/rooms/:slug", c.RoomController.GetRoomDetail)
+
 	c.App.Get("/api/article/:slug", c.ArticleController.GetArticle)
+	c.App.Get("/api/category/:slug", c.CategoryController.GetCategory)
+
 }
 
 func (c *RouteConfig) SetupAuthRoute() {

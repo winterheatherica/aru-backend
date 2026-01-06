@@ -97,6 +97,16 @@ func Bootstrap(config *BootstrapConfig) {
 
 	careerController := http.NewCareerController(careerUsecase)
 
+	// --- Room Module ---
+	roomDetailRepo := repository.NewSpaceRoomRepository(config.DB)
+
+	roomUsecase := usecase.NewRoomUsecase(
+		roomDetailRepo,
+		config.MinioConfig.PublicBaseURL,
+	)
+
+	roomController := http.NewRoomController(roomUsecase)
+
 	// --- Article Module ---
 	articleRepo := repository.NewNewsArticleRepository(config.DB)
 
@@ -126,6 +136,8 @@ func Bootstrap(config *BootstrapConfig) {
 		ReservationController: reservationController,
 		InformationController: informationController,
 		CareerController:      careerController,
+
+		RoomController: roomController,
 
 		ArticleController:  articleController,
 		CategoryController: categoryController,
