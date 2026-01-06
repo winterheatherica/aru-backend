@@ -10,6 +10,7 @@ import (
 
 type NewsArticleRepository interface {
 	FindActiveBySlug(ctx context.Context, slug string, lang string) (*entity.NewsArticle, error)
+	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
 }
 
 type newsArticleRepositoryImpl struct {
@@ -44,6 +45,32 @@ func (r *newsArticleRepositoryImpl) FindActiveBySlug(
 	}
 
 	return &article, nil
+}
+
+func (r *newsArticleRepositoryImpl) FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error) {
+	var articles []entity.NewsArticle
+
+	q := r.db.WithContext(ctx).
+		Model(&entity.NewsArticle{}).
+		Joins("JOIN news_article_translations t ON t.article_id = news_articles.id").
+		Where("news_articles.is_active = ?", true).
+		Where("news_articles.deleted_at IS NULL").
+		Where("t.language = ?", lang).
+		Order("news_articles.published_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Preload("Translations", "language = ?", lang)
+
+	if year != nil {
+		q = q.Where("EXTRACT(YEAR FROM news_articles.published_at) = ?", *year)
+	}
+
+	err := q.Find(&articles).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return articles, nil
 }
 
 func (r *newsArticleRepositoryImpl) subQueryArticleIDBySlug(

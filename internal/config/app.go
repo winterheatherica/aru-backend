@@ -26,39 +26,6 @@ type BootstrapConfig struct {
 
 func Bootstrap(config *BootstrapConfig) {
 
-	// Repository layer
-	// userRepository := repository.NewUserRepository()
-
-	// Token service (JWT)
-	// tokenService := service.NewTokenService()
-
-	// Use case layer
-	// userUseCase := usecase.NewUserUseCase(
-	// 	config.DB,
-	// 	config.Log,
-	// 	config.Validate,
-	// 	userRepository,
-	// 	tokenService,
-	// )
-
-	// Controller layer
-	// userController := http.NewUserController(
-	// 	userUseCase,
-	// 	config.Log,
-	// )
-
-	// Middleware layer
-	// authMiddleware := middleware.NewAuthMiddleware(tokenService).Handle()
-
-	// Route layer
-	// routeConfig := route.RouteConfig{
-	// 	App:            config.App,
-	// 	UserController: userController,
-	// 	AuthMiddleware: authMiddleware,
-	// }
-
-	// routeConfig.Setup()
-
 	// --- Home Module ---
 	heroRepo := repository.NewHeroRepository(config.DB)
 	promoRepo := repository.NewPromoRepository(config.DB)
@@ -96,6 +63,16 @@ func Bootstrap(config *BootstrapConfig) {
 
 	careerController := http.NewCareerController(careerUsecase)
 
+	// --- Information Module ---
+	newsArticleRepo := repository.NewNewsArticleRepository(config.DB)
+
+	informationUsecase := usecase.NewInformationUsecase(
+		newsArticleRepo,
+		config.MinioConfig.PublicBaseURL,
+	)
+
+	informationController := http.NewInformationController(informationUsecase)
+
 	// --- Article Module ---
 	articleRepo := repository.NewNewsArticleRepository(config.DB)
 
@@ -117,12 +94,13 @@ func Bootstrap(config *BootstrapConfig) {
 
 	// --- Setup Routes ---
 	routeConfig := route.RouteConfig{
-		App:                config.App,
-		HomeController:     homeController,
-		AboutController:    aboutController,
-		CareerController:   careerController,
-		ArticleController:  articleController,
-		CategoryController: categoryController,
+		App:                   config.App,
+		HomeController:        homeController,
+		AboutController:       aboutController,
+		InformationController: informationController,
+		CareerController:      careerController,
+		ArticleController:     articleController,
+		CategoryController:    categoryController,
 	}
 
 	routeConfig.Setup()

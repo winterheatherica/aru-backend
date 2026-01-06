@@ -37,3 +37,12 @@ type NewsArticleCategory struct {
 	Slug        string    `json:"slug"`
 	Description *string   `json:"description,omitempty"`
 }
+
+type NewsCard struct {
+	ID          uuid.UUID `json:"id"`
+	Slug        string    `json:"slug"`
+	Title       string    `json:"title"`
+	Summary     string    `json:"summary"`
+	ImageURL    *string   `json:"image_url,omitempty"`
+	PublishedAt string    `json:"published_at"`
+}
