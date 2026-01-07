@@ -17,6 +17,7 @@ type homeUsecaseImpl struct {
 	promoRepo   repository.PromoRepository
 	partnerRepo repository.PartnerRepository
 	clientRepo  repository.ClientRepository
+	newsRepo    repository.NewsArticleRepository
 
 	baseURL string
 }
@@ -26,6 +27,7 @@ type HomeResponse struct {
 	Promo           []model.PromoSlide `json:"promo"`
 	PartnerScroller []model.Partner    `json:"partner_scroller"`
 	ClientScroller  []model.Client     `json:"client_scroller"`
+	News            []model.NewsCard   `json:"news"`
 }
 
 func NewHomeUsecase(
@@ -33,6 +35,7 @@ func NewHomeUsecase(
 	promoRepo repository.PromoRepository,
 	partnerRepo repository.PartnerRepository,
 	clientRepo repository.ClientRepository,
+	newsRepo repository.NewsArticleRepository,
 	baseURL string,
 ) HomeUsecase {
 	return &homeUsecaseImpl{
@@ -40,6 +43,7 @@ func NewHomeUsecase(
 		promoRepo:   promoRepo,
 		partnerRepo: partnerRepo,
 		clientRepo:  clientRepo,
+		newsRepo:    newsRepo,
 		baseURL:     baseURL,
 	}
 }
@@ -81,10 +85,24 @@ func (u *homeUsecaseImpl) GetHome(
 		u.baseURL,
 	)
 
+	articles, err := u.newsRepo.FindLatest(ctx, lang, 5)
+	if err != nil {
+		return nil, err
+	}
+
+	news := make([]model.NewsCard, 0, len(articles))
+	for _, a := range articles {
+		card := converter.NewsArticleToNewsCard(a, lang, u.baseURL)
+		if card != nil {
+			news = append(news, *card)
+		}
+	}
+
 	return &HomeResponse{
 		Hero:            hero,
 		Promo:           promo,
 		PartnerScroller: partnerScroller,
 		ClientScroller:  clientScroller,
+		News:            news,
 	}, nil
 }

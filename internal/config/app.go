@@ -31,12 +31,14 @@ func Bootstrap(config *BootstrapConfig) {
 	promoRepo := repository.NewPromoRepository(config.DB)
 	partnerRepo := repository.NewPartnerRepository(config.DB)
 	clientRepo := repository.NewClientRepository(config.DB)
+	newsRepo := repository.NewNewsArticleRepository(config.DB)
 
 	homeUsecase := usecase.NewHomeUsecase(
 		heroRepo,
 		promoRepo,
 		partnerRepo,
 		clientRepo,
+		newsRepo,
 		config.MinioConfig.PublicBaseURL,
 	)
 

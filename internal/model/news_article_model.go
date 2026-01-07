@@ -43,6 +43,6 @@ type NewsCard struct {
 	Slug        string    `json:"slug"`
 	Title       string    `json:"title"`
 	Summary     string    `json:"summary"`
-	ImageURL    *string   `json:"image_url,omitempty"`
+	ImagePath   *string   `json:"image_path,omitempty"`
 	PublishedAt string    `json:"published_at"`
 }

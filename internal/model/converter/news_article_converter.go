@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"regexp"
 	"strings"
 	"time"
 
@@ -68,6 +69,45 @@ func NewsArticleToModel(
 	}
 }
 
+func NewsArticleToNewsCard(
+	article entity.NewsArticle,
+	lang string,
+	baseURL string,
+) *model.NewsCard {
+
+	at := findArticleTranslation(article, lang)
+	if at == nil {
+		return nil
+	}
+
+	var imageURL *string
+	if article.ImagePath != nil {
+		url := BuildAssetURL(baseURL, *article.ImagePath)
+		imageURL = &url
+	}
+
+	summary := makeSummary(at.Content, 150)
+
+	return &model.NewsCard{
+		ID:          article.ID,
+		Slug:        at.Slug,
+		Title:       at.Title,
+		Summary:     summary,
+		ImagePath:   imageURL,
+		PublishedAt: article.PublishedAt.Format(time.RFC3339),
+	}
+}
+
+func makeSummary(content string, limit int) string {
+	plain := stripHTML(content)
+	text := strings.TrimSpace(plain)
+
+	if len(text) <= limit {
+		return text
+	}
+	return text[:limit] + "..."
+}
+
 func findArticleTranslation(
 	article entity.NewsArticle,
 	lang string,
@@ -92,44 +132,8 @@ func findCategoryTranslation(
 	return nil
 }
 
-func NewsArticleToNewsCard(
-	article entity.NewsArticle,
-	lang string,
-	baseURL string,
-) *model.NewsCard {
+var htmlTagRe = regexp.MustCompile(`<[^>]*>`)
 
-	at := findArticleTranslation(article, lang)
-	if at == nil {
-		return nil
-	}
-
-	var imageURL *string
-	if article.ImagePath != nil {
-		url := BuildAssetURL(baseURL, *article.ImagePath)
-		imageURL = &url
-	}
-
-	summary := makeSummary(at.Content, 150)
-
-	return &model.NewsCard{
-		ID: article.ID,
-
-		Slug: at.Slug,
-
-		Title:   at.Title,
-		Summary: summary,
-
-		ImageURL: imageURL,
-
-		PublishedAt: article.PublishedAt.Format(time.RFC3339),
-	}
-}
-
-func makeSummary(content string, limit int) string {
-	text := strings.TrimSpace(content)
-
-	if len(text) <= limit {
-		return text
-	}
-	return text[:limit] + "..."
+func stripHTML(input string) string {
+	return htmlTagRe.ReplaceAllString(input, "")
 }
