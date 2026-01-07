@@ -1,6 +1,6 @@
 CREATE TABLE news_articles (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  image_url text,
+  image_path text,
   uploaded_by uuid REFERENCES users(id) ON DELETE SET NULL,
   is_active boolean DEFAULT true,
   published_at timestamptz DEFAULT now(),
