@@ -32,7 +32,7 @@ func (r *historyRepositoryImpl) FindActiveByLanguage(
 	err := r.db.WithContext(ctx).
 		Where("language = ?", lang).
 		Where("is_active = ?", true).
-		Order("year ASC").
+		Order("year DESC NULLS LAST").
 		Find(&histories).Error
 
 	if err != nil {
