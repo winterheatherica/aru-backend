@@ -43,6 +43,7 @@ func SpaceRoomToCardModel(
 	}
 
 	isAvailable := isRoomAvailable(room.Bookings, time.Now())
+
 	statusText := "Available"
 	actionLabel := "View & Book"
 	actionState := "active"
@@ -51,6 +52,11 @@ func SpaceRoomToCardModel(
 		statusText = "Fully booked"
 		actionLabel = "Unavailable"
 		actionState = "disabled"
+	}
+
+	facilities := []string{}
+	if tr.Facilities != nil {
+		facilities = []string(tr.Facilities)
 	}
 
 	return &model.SpaceRoomCard{
@@ -68,7 +74,7 @@ func SpaceRoomToCardModel(
 		Capacity: room.Capacity,
 		Floor:    room.Floor,
 
-		Facilities: tr.Facilities,
+		Facilities: facilities,
 
 		IsAvailable: isAvailable,
 		StatusText:  statusText,
@@ -78,34 +84,6 @@ func SpaceRoomToCardModel(
 		ActionLabel: actionLabel,
 		ActionState: actionState,
 	}
-}
-
-func findSpaceRoomTranslation(
-	room entity.SpaceRoom,
-	lang string,
-) *entity.SpaceRoomTranslation {
-
-	for i := range room.Translations {
-		if room.Translations[i].Language == lang {
-			return &room.Translations[i]
-		}
-	}
-	return nil
-}
-
-func isRoomAvailable(
-	bookings []entity.SpaceRoomBooking,
-	now time.Time,
-) bool {
-
-	for _, b := range bookings {
-		if b.Status != "CANCELLED" &&
-			now.After(b.StartTime) &&
-			now.Before(b.EndTime) {
-			return false
-		}
-	}
-	return true
 }
 
 func SpaceRoomToDetailModel(
@@ -119,7 +97,6 @@ func SpaceRoomToDetailModel(
 		return nil
 	}
 
-	// --- images ---
 	images := make([]model.SpaceRoomImage, 0)
 
 	for _, img := range room.Images {
@@ -154,6 +131,11 @@ func SpaceRoomToDetailModel(
 		actionState = "disabled"
 	}
 
+	facilities := []string{}
+	if tr.Facilities != nil {
+		facilities = []string(tr.Facilities)
+	}
+
 	return &model.SpaceRoomDetail{
 		ID: room.ID,
 
@@ -167,7 +149,7 @@ func SpaceRoomToDetailModel(
 		Capacity: room.Capacity,
 		Floor:    room.Floor,
 
-		Facilities: tr.Facilities,
+		Facilities: facilities,
 
 		IsAvailable: isAvailable,
 		StatusText:  statusText,
@@ -176,6 +158,19 @@ func SpaceRoomToDetailModel(
 		ActionLabel: actionLabel,
 		ActionState: actionState,
 	}
+}
+
+func findSpaceRoomTranslation(
+	room entity.SpaceRoom,
+	lang string,
+) *entity.SpaceRoomTranslation {
+
+	for i := range room.Translations {
+		if room.Translations[i].Language == lang {
+			return &room.Translations[i]
+		}
+	}
+	return nil
 }
 
 func findSpaceRoomImageTranslation(
@@ -189,4 +184,19 @@ func findSpaceRoomImageTranslation(
 		}
 	}
 	return nil
+}
+
+func isRoomAvailable(
+	bookings []entity.SpaceRoomBooking,
+	now time.Time,
+) bool {
+
+	for _, b := range bookings {
+		if b.Status != "CANCELLED" &&
+			now.After(b.StartTime) &&
+			now.Before(b.EndTime) {
+			return false
+		}
+	}
+	return true
 }

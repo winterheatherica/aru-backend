@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type SpaceRoom struct {
@@ -39,18 +40,18 @@ type SpaceRoomTranslation struct {
 
 	Language string `gorm:"column:language;type:language;not null" json:"language"`
 
-	Title       string   `gorm:"column:title;not null" json:"title"`
-	Description *string  `gorm:"column:description" json:"description,omitempty"`
-	Facilities  []string `gorm:"column:facilities;type:text[]" json:"facilities,omitempty"`
+	Title       string         `gorm:"column:title;not null" json:"title"`
+	Description *string        `gorm:"column:description" json:"description,omitempty"`
+	Facilities  pq.StringArray `gorm:"column:facilities;type:text[]" json:"facilities,omitempty"`
 
 	MainImageAlt   *string `gorm:"column:main_image_alt" json:"main_image_alt,omitempty"`
 	MainImageTitle *string `gorm:"column:main_image_title" json:"main_image_title,omitempty"`
 
 	Slug string `gorm:"column:slug;not null" json:"slug"`
 
-	MetaTitle       *string  `gorm:"column:meta_title" json:"meta_title,omitempty"`
-	MetaDescription *string  `gorm:"column:meta_description" json:"meta_description,omitempty"`
-	MetaKeywords    []string `gorm:"column:meta_keywords;type:text[]" json:"meta_keywords,omitempty"`
+	MetaTitle       *string        `gorm:"column:meta_title" json:"meta_title,omitempty"`
+	MetaDescription *string        `gorm:"column:meta_description" json:"meta_description,omitempty"`
+	MetaKeywords    pq.StringArray `gorm:"column:meta_keywords;type:text[]" json:"meta_keywords,omitempty"`
 
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
