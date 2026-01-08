@@ -9,7 +9,7 @@ import (
 )
 
 type InformationUsecase interface {
-	GetInformationCards(ctx context.Context, lang string, year *int, page int, limit int) ([]model.NewsCard, error)
+	GetInformation(ctx context.Context, lang string, year *int, page int) (*InformationResponse, error)
 }
 
 type informationUsecaseImpl struct {
@@ -27,21 +27,23 @@ func NewInformationUsecase(
 	}
 }
 
-func (u *informationUsecaseImpl) GetInformationCards(
+type InformationResponse struct {
+	NewsCards []model.NewsCard `json:"news_cards"`
+	NewsYears []int            `json:"news_years"`
+}
+
+func (u *informationUsecaseImpl) GetInformation(
 	ctx context.Context,
 	lang string,
 	year *int,
 	page int,
-	limit int,
-) ([]model.NewsCard, error) {
+) (*InformationResponse, error) {
 
 	if page < 1 {
 		page = 1
 	}
-	if limit < 1 {
-		limit = 18
-	}
 
+	const limit = 18
 	offset := (page - 1) * limit
 
 	entities, err := u.newsRepo.FindActiveCardList(ctx, lang, year, limit, offset)
@@ -58,5 +60,13 @@ func (u *informationUsecaseImpl) GetInformationCards(
 		}
 	}
 
-	return cards, nil
+	years, err := u.newsRepo.FindActiveYears(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &InformationResponse{
+		NewsCards: cards,
+		NewsYears: years,
+	}, nil
 }

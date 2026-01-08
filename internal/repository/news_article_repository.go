@@ -12,6 +12,7 @@ type NewsArticleRepository interface {
 	FindActiveBySlug(ctx context.Context, slug string, lang string) (*entity.NewsArticle, error)
 	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
 	FindLatest(ctx context.Context, lang string, limit int) ([]entity.NewsArticle, error)
+	FindActiveYears(ctx context.Context) ([]int, error)
 }
 
 type newsArticleRepositoryImpl struct {
@@ -113,4 +114,25 @@ func (r *newsArticleRepositoryImpl) FindLatest(
 	}
 
 	return articles, nil
+}
+
+func (r *newsArticleRepositoryImpl) FindActiveYears(
+	ctx context.Context,
+) ([]int, error) {
+
+	var years []int
+
+	err := r.db.WithContext(ctx).
+		Table("news_articles").
+		Select("DISTINCT EXTRACT(YEAR FROM published_at) AS year").
+		Where("is_active = ?", true).
+		Where("deleted_at IS NULL").
+		Order("year DESC").
+		Pluck("year", &years).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return years, nil
 }

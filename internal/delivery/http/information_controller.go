@@ -19,14 +19,18 @@ func NewInformationController(u usecase.InformationUsecase) *InformationControll
 func (c *InformationController) GetInformation(ctx *fiber.Ctx) error {
 	lang := ctx.Query("lang", "id")
 	page := ctx.QueryInt("page", 1)
-	limit := ctx.QueryInt("limit", 18)
 
 	var year *int
 	if y := ctx.QueryInt("year", 0); y != 0 {
 		year = &y
 	}
 
-	result, err := c.Usecase.GetInformationCards(ctx.Context(), lang, year, page, limit)
+	result, err := c.Usecase.GetInformation(
+		ctx.Context(),
+		lang,
+		year,
+		page,
+	)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
