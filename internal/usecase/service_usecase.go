@@ -13,30 +13,34 @@ type ServiceUsecase interface {
 }
 
 type serviceUsecaseImpl struct {
-	galleryRepo repository.ServiceGalleryRepository
-	pricingRepo repository.ServicePricingRepository
-	matrixRepo  repository.ServiceMatrixRepository
+	galleryRepo       repository.ServiceGalleryRepository
+	pricingRepo       repository.ServicePricingRepository
+	matrixRepo        repository.ServiceMatrixRepository
+	certificationRepo repository.ServiceCertificationRepository
 
 	baseURL string
 }
 
 type ServiceResponse struct {
-	Gallery []model.ServiceGallery     `json:"gallery"`
-	Pricing []model.ServicePricingTier `json:"pricing"`
-	Matrix  *model.ServiceMatrix       `json:"matrix"`
+	Gallery        []model.ServiceGallery       `json:"gallery"`
+	Pricing        []model.ServicePricingTier   `json:"pricing"`
+	Matrix         *model.ServiceMatrix         `json:"matrix"`
+	Certifications []model.ServiceCertification `json:"certifications"`
 }
 
 func NewServiceUsecase(
 	galleryRepo repository.ServiceGalleryRepository,
 	pricingRepo repository.ServicePricingRepository,
 	matrixRepo repository.ServiceMatrixRepository,
+	certificationRepo repository.ServiceCertificationRepository,
 	baseURL string,
 ) ServiceUsecase {
 	return &serviceUsecaseImpl{
-		galleryRepo: galleryRepo,
-		pricingRepo: pricingRepo,
-		matrixRepo:  matrixRepo,
-		baseURL:     baseURL,
+		galleryRepo:       galleryRepo,
+		pricingRepo:       pricingRepo,
+		matrixRepo:        matrixRepo,
+		certificationRepo: certificationRepo,
+		baseURL:           baseURL,
 	}
 }
 
@@ -74,9 +78,19 @@ func (u *serviceUsecaseImpl) GetServicePage(
 		lang,
 	)
 
+	certEntities, err := u.certificationRepo.FindActiveByService(ctx, service, lang)
+	if err != nil {
+		return nil, err
+	}
+	certifications := converter.ServiceCertificationListToModel(
+		certEntities,
+		lang,
+	)
+
 	return &ServiceResponse{
-		Gallery: gallery,
-		Pricing: pricing,
-		Matrix:  matrix,
+		Gallery:        gallery,
+		Pricing:        pricing,
+		Matrix:         matrix,
+		Certifications: certifications,
 	}, nil
 }

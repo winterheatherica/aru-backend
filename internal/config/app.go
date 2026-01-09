@@ -60,11 +60,13 @@ func Bootstrap(config *BootstrapConfig) {
 	serviceGalleryRepo := repository.NewServiceGalleryRepository(config.DB)
 	servicePricingRepo := repository.NewServicePricingRepository(config.DB)
 	serviceMatrixRepo := repository.NewServiceMatrixRepository(config.DB)
+	serviceCertificationRepo := repository.NewServiceCertificationRepository(config.DB)
 
 	serviceUsecase := usecase.NewServiceUsecase(
 		serviceGalleryRepo,
 		servicePricingRepo,
 		serviceMatrixRepo,
+		serviceCertificationRepo,
 		config.MinioConfig.PublicBaseURL,
 	)
 
