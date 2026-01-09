@@ -1,0 +1,4 @@
+DROP INDEX IF EXISTS idx_service_certification_translations_language;
+DROP INDEX IF EXISTS idx_service_certification_translations_certification;
+
+DROP TABLE IF EXISTS service_certification_translations;
