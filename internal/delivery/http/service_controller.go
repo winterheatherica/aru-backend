@@ -16,21 +16,32 @@ func NewServiceController(u usecase.ServiceUsecase) *ServiceController {
 	}
 }
 
-func (c *ServiceController) GetServicePage(ctx *fiber.Ctx) error {
-	service := ctx.Query("service")
+func (c *ServiceController) GetServicePageBatch(ctx *fiber.Ctx) error {
 	lang := ctx.Query("lang", "id")
 
-	if service == "" {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "service is required",
-		})
+	services := []string{
+		"ARUCONTRACTOR",
+		"ARUDIGITAL",
+		"ARUHEALTHCARE",
+		"ARULOG",
+		"ARUSOLUTION",
+		"ARUSOURCE",
+		"ARUSPACE",
+		"ARUTRANS",
 	}
 
-	result, err := c.Usecase.GetServicePage(ctx.Context(), service, lang)
-	if err != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
-		})
+	result := make(map[string]interface{})
+
+	for _, service := range services {
+		data, err := c.Usecase.GetServicePage(ctx.Context(), service, lang)
+		if err != nil {
+			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error":   err.Error(),
+				"service": service,
+			})
+		}
+
+		result[service] = data
 	}
 
 	return ctx.JSON(result)

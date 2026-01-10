@@ -34,7 +34,7 @@ func (c *RouteConfig) SetupGuestRoute() {
 
 	c.App.Get("/api/home", c.HomeController.GetHome)
 	c.App.Get("/api/about", c.AboutController.GetAbout)
-	c.App.Get("/api/service", c.ServiceController.GetServicePage)
+	c.App.Get("/api/service", c.ServiceController.GetServicePageBatch)
 	c.App.Get("/api/reservation", c.ReservationController.GetReservationPage)
 	c.App.Get("/api/information", c.InformationController.GetInformation)
 	c.App.Get("/api/career", c.CareerController.GetCareers)
