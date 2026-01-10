@@ -1,6 +1,7 @@
 CREATE TABLE service_certifications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   service service NOT NULL,
+  uploaded_by uuid REFERENCES users(id) ON DELETE SET NULL,
   order_index integer DEFAULT 1,
   is_active boolean DEFAULT true,
   created_at timestamptz DEFAULT now(),

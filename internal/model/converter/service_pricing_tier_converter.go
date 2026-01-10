@@ -28,7 +28,7 @@ func ServicePricingTierToModel(
 
 		Name:        tr.Name,
 		Description: tr.Description,
-		Features:    tr.Features,
+		Features:    []string(tr.Features),
 
 		IsActive: tier.IsActive,
 	}
