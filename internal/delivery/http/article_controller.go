@@ -18,9 +18,9 @@ func NewArticleController(u usecase.ArticleUsecase) *ArticleController {
 
 func (c *ArticleController) GetArticle(ctx *fiber.Ctx) error {
 	lang := ctx.Query("lang", "id")
-	slug := ctx.Params("slug")
+	id := ctx.Params("id")
 
-	result, err := c.Usecase.GetArticleBySlug(ctx.Context(), slug, lang)
+	result, err := c.Usecase.GetArticleByID(ctx.Context(), id, lang)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

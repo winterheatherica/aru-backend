@@ -9,7 +9,7 @@ import (
 )
 
 type NewsArticleRepository interface {
-	FindActiveBySlug(ctx context.Context, slug string, lang string) (*entity.NewsArticle, error)
+	FindActiveByID(ctx context.Context, id string, lang string) (*entity.NewsArticle, error)
 	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
 	FindLatest(ctx context.Context, lang string, limit int) ([]entity.NewsArticle, error)
 	FindActiveYears(ctx context.Context) ([]int, error)
@@ -25,24 +25,25 @@ func NewNewsArticleRepository(db *gorm.DB) NewsArticleRepository {
 	}
 }
 
-func (r *newsArticleRepositoryImpl) FindActiveBySlug(
+func (r *newsArticleRepositoryImpl) FindActiveByID(
 	ctx context.Context,
-	slug string,
+	id string,
 	lang string,
 ) (*entity.NewsArticle, error) {
 
 	var article entity.NewsArticle
 
-	subQuery := r.subQueryArticleIDBySlug(slug, lang)
-
 	err := r.db.WithContext(ctx).
 		Where("is_active = ?", true).
-		Where("id IN (?)", subQuery).
+		Where("id = ?", id).
 		Preload("Translations", "language = ?", lang).
 		Preload("Categories.Translations", "language = ?", lang).
 		First(&article).Error
 
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -78,18 +79,6 @@ func (r *newsArticleRepositoryImpl) FindActiveCardList(
 	}
 
 	return articles, nil
-}
-
-func (r *newsArticleRepositoryImpl) subQueryArticleIDBySlug(
-	slug string,
-	lang string,
-) *gorm.DB {
-
-	return r.db.
-		Table("news_article_translations").
-		Select("article_id").
-		Where("slug = ?", slug).
-		Where("language = ?", lang)
 }
 
 func (r *newsArticleRepositoryImpl) FindLatest(

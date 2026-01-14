@@ -9,7 +9,7 @@ import (
 )
 
 type ArticleUsecase interface {
-	GetArticleBySlug(ctx context.Context, slug string, lang string) (*model.NewsArticle, error)
+	GetArticleByID(ctx context.Context, id string, lang string) (*model.NewsArticle, error)
 }
 
 type articleUsecaseImpl struct {
@@ -27,13 +27,13 @@ func NewArticleUsecase(
 	}
 }
 
-func (u *articleUsecaseImpl) GetArticleBySlug(
+func (u *articleUsecaseImpl) GetArticleByID(
 	ctx context.Context,
-	slug string,
+	id string,
 	lang string,
 ) (*model.NewsArticle, error) {
 
-	entity, err := u.articleRepo.FindActiveBySlug(ctx, slug, lang)
+	entity, err := u.articleRepo.FindActiveByID(ctx, id, lang)
 	if err != nil {
 		return nil, err
 	}
