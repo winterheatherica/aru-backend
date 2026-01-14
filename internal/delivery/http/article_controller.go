@@ -35,3 +35,25 @@ func (c *ArticleController) GetArticle(ctx *fiber.Ctx) error {
 
 	return ctx.JSON(result)
 }
+
+func (c *ArticleController) ResolveArticleID(ctx *fiber.Ctx) error {
+	lang := ctx.Query("lang", "id")
+	slug := ctx.Query("slug")
+
+	if slug == "" {
+		return ctx.Status(400).JSON(fiber.Map{
+			"error": "slug is required",
+		})
+	}
+
+	id, err := c.Usecase.ResolveArticleID(ctx.Context(), slug, lang)
+	if err != nil {
+		return ctx.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	if id == "" {
+		return ctx.Status(404).JSON(fiber.Map{"error": "article not found"})
+	}
+
+	return ctx.JSON(fiber.Map{"id": id})
+}

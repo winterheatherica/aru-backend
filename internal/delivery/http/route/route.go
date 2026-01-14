@@ -41,6 +41,7 @@ func (c *RouteConfig) SetupGuestRoute() {
 
 	c.App.Get("/api/rooms/:slug", c.RoomController.GetRoomDetail)
 
+	c.App.Get("/api/article/resolve", c.ArticleController.ResolveArticleID)
 	c.App.Get("/api/article/:id", c.ArticleController.GetArticle)
 	c.App.Get("/api/category/:slug", c.CategoryController.GetCategory)
 

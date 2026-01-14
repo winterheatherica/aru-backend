@@ -10,6 +10,7 @@ import (
 
 type ArticleUsecase interface {
 	GetArticleByID(ctx context.Context, id string, lang string) (*model.NewsArticle, error)
+	ResolveArticleID(ctx context.Context, slug, lang string) (string, error)
 }
 
 type articleUsecaseImpl struct {
@@ -39,4 +40,12 @@ func (u *articleUsecaseImpl) GetArticleByID(
 	}
 
 	return converter.NewsArticleToModel(*entity, lang, u.baseURL), nil
+}
+
+func (u *articleUsecaseImpl) ResolveArticleID(
+	ctx context.Context,
+	slug string,
+	lang string,
+) (string, error) {
+	return u.articleRepo.ResolveIDBySlug(ctx, slug, lang)
 }

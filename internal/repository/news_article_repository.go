@@ -10,6 +10,7 @@ import (
 
 type NewsArticleRepository interface {
 	FindActiveByID(ctx context.Context, id string, lang string) (*entity.NewsArticle, error)
+	ResolveIDBySlug(ctx context.Context, slug, lang string) (string, error)
 	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
 	FindLatest(ctx context.Context, lang string, limit int) ([]entity.NewsArticle, error)
 	FindActiveYears(ctx context.Context) ([]int, error)
@@ -124,4 +125,26 @@ func (r *newsArticleRepositoryImpl) FindActiveYears(
 	}
 
 	return years, nil
+}
+
+func (r *newsArticleRepositoryImpl) ResolveIDBySlug(
+	ctx context.Context,
+	slug, lang string,
+) (string, error) {
+
+	var id string
+
+	err := r.db.WithContext(ctx).
+		Table("news_article_translations").
+		Select("article_id").
+		Where("slug = ?", slug).
+		Where("language = ?", lang).
+		Limit(1).
+		Scan(&id).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
 }
