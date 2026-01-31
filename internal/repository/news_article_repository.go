@@ -10,7 +10,8 @@ import (
 
 type NewsArticleRepository interface {
 	FindActiveByID(ctx context.Context, id string, lang string) (*entity.NewsArticle, error)
-	ResolveIDBySlug(ctx context.Context, slug, lang string) (string, error)
+	ResolveIDBySlug(ctx context.Context, slug string) (string, error)
+	FindSlugByIDAndLang(ctx context.Context, id, lang string) (string, error)
 	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
 	FindLatest(ctx context.Context, lang string, limit int) ([]entity.NewsArticle, error)
 	FindActiveYears(ctx context.Context) ([]int, error)
@@ -129,7 +130,7 @@ func (r *newsArticleRepositoryImpl) FindActiveYears(
 
 func (r *newsArticleRepositoryImpl) ResolveIDBySlug(
 	ctx context.Context,
-	slug, lang string,
+	slug string,
 ) (string, error) {
 
 	var id string
@@ -138,7 +139,6 @@ func (r *newsArticleRepositoryImpl) ResolveIDBySlug(
 		Table("news_article_translations").
 		Select("article_id").
 		Where("slug = ?", slug).
-		Where("language = ?", lang).
 		Limit(1).
 		Scan(&id).Error
 
@@ -147,4 +147,30 @@ func (r *newsArticleRepositoryImpl) ResolveIDBySlug(
 	}
 
 	return id, nil
+}
+
+func (r *newsArticleRepositoryImpl) FindSlugByIDAndLang(
+	ctx context.Context,
+	id, lang string,
+) (string, error) {
+
+	var slug string
+
+	err := r.db.WithContext(ctx).
+		Table("news_article_translations").
+		Select("slug").
+		Where("article_id = ?", id).
+		Where("language = ?", lang).
+		Limit(1).
+		Scan(&slug).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	if slug == "" {
+		return "", nil
+	}
+
+	return slug, nil
 }

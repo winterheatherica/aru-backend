@@ -10,7 +10,8 @@ import (
 
 type ArticleUsecase interface {
 	GetArticleByID(ctx context.Context, id string, lang string) (*model.NewsArticle, error)
-	ResolveArticleID(ctx context.Context, slug, lang string) (string, error)
+	ResolveArticleID(ctx context.Context, slug string) (string, error)
+	ResolveArticleSlug(ctx context.Context, id string, lang string) (string, error)
 }
 
 type articleUsecaseImpl struct {
@@ -39,13 +40,24 @@ func (u *articleUsecaseImpl) GetArticleByID(
 		return nil, err
 	}
 
+	if entity == nil {
+		return nil, nil
+	}
+
 	return converter.NewsArticleToModel(*entity, lang, u.baseURL), nil
 }
 
 func (u *articleUsecaseImpl) ResolveArticleID(
 	ctx context.Context,
 	slug string,
+) (string, error) {
+	return u.articleRepo.ResolveIDBySlug(ctx, slug)
+}
+
+func (u *articleUsecaseImpl) ResolveArticleSlug(
+	ctx context.Context,
+	id string,
 	lang string,
 ) (string, error) {
-	return u.articleRepo.ResolveIDBySlug(ctx, slug, lang)
+	return u.articleRepo.FindSlugByIDAndLang(ctx, id, lang)
 }
