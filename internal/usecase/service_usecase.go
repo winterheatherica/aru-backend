@@ -24,7 +24,7 @@ type serviceUsecaseImpl struct {
 type ServiceResponse struct {
 	Gallery []model.ServiceGallery     `json:"gallery"`
 	Pricing []model.ServicePricingTier `json:"pricing"`
-	// Matrix         *model.ServiceMatrix         `json:"matrix"`
+	Matrix  *model.ServiceMatrix       `json:"matrix"`
 	// Certifications []model.ServiceCertification `json:"certifications"`
 }
 
@@ -69,14 +69,14 @@ func (u *serviceUsecaseImpl) GetServicePage(
 		lang,
 	)
 
-	// matrixEntity, err := u.matrixRepo.FindActiveByService(ctx, service, nil, lang)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// matrix := converter.ServiceMatrixToModel(
-	// 	*matrixEntity,
-	// 	lang,
-	// )
+	matrixEntity, err := u.matrixRepo.FindActiveByService(ctx, service, nil, lang)
+	if err != nil {
+		return nil, err
+	}
+	matrix := converter.ServiceMatrixToModel(
+		*matrixEntity,
+		lang,
+	)
 
 	// certEntities, err := u.certificationRepo.FindActiveByService(ctx, service, lang)
 	// if err != nil {
@@ -90,7 +90,7 @@ func (u *serviceUsecaseImpl) GetServicePage(
 	return &ServiceResponse{
 		Gallery: gallery,
 		Pricing: pricing,
-		// Matrix:         matrix,
+		Matrix:  matrix,
 		// Certifications: certifications,
 	}, nil
 }
