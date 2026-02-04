@@ -22,10 +22,10 @@ type serviceUsecaseImpl struct {
 }
 
 type ServiceResponse struct {
-	Gallery []model.ServiceGallery     `json:"gallery"`
-	Pricing []model.ServicePricingTier `json:"pricing"`
-	Matrix  *model.ServiceMatrix       `json:"matrix"`
-	// Certifications []model.ServiceCertification `json:"certifications"`
+	Gallery        []model.ServiceGallery       `json:"gallery"`
+	Pricing        []model.ServicePricingTier   `json:"pricing"`
+	Matrix         *model.ServiceMatrix         `json:"matrix"`
+	Certifications []model.ServiceCertification `json:"certifications"`
 }
 
 func NewServiceUsecase(
@@ -78,19 +78,19 @@ func (u *serviceUsecaseImpl) GetServicePage(
 		lang,
 	)
 
-	// certEntities, err := u.certificationRepo.FindActiveByService(ctx, service, lang)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// certifications := converter.ServiceCertificationListToModel(
-	// 	certEntities,
-	// 	lang,
-	// )
+	certEntities, err := u.certificationRepo.FindActiveByService(ctx, service, lang)
+	if err != nil {
+		return nil, err
+	}
+	certifications := converter.ServiceCertificationListToModel(
+		certEntities,
+		lang,
+	)
 
 	return &ServiceResponse{
-		Gallery: gallery,
-		Pricing: pricing,
-		Matrix:  matrix,
-		// Certifications: certifications,
+		Gallery:        gallery,
+		Pricing:        pricing,
+		Matrix:         matrix,
+		Certifications: certifications,
 	}, nil
 }
