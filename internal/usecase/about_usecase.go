@@ -14,22 +14,26 @@ type AboutUsecase interface {
 
 type aboutUsecaseImpl struct {
 	historyRepo repository.HistoryRepository
+	partnerRepo repository.PartnerRepository
 	awardRepo   repository.AwardRepository
 	baseURL     string
 }
 
 type AboutResponse struct {
-	Histories []model.History `json:"histories"`
-	Awards    []model.Award   `json:"awards"`
+	Histories   []model.History `json:"histories"`
+	PartnerGrid []model.Partner `json:"partner_grid"`
+	Awards      []model.Award   `json:"awards"`
 }
 
 func NewAboutUsecase(
 	historyRepo repository.HistoryRepository,
+	partnerRepo repository.PartnerRepository,
 	awardRepo repository.AwardRepository,
 	baseURL string,
 ) AboutUsecase {
 	return &aboutUsecaseImpl{
 		historyRepo: historyRepo,
+		partnerRepo: partnerRepo,
 		awardRepo:   awardRepo,
 		baseURL:     baseURL,
 	}
@@ -47,6 +51,16 @@ func (u *aboutUsecaseImpl) GetAbout(
 
 	histories := converter.HistoryListToModel(historyEntities)
 
+	partnerEntities, err := u.partnerRepo.FindActiveForGrid(ctx, lang)
+	if err != nil {
+		return nil, err
+	}
+	partnerGrid := converter.PartnerListToModel(
+		partnerEntities,
+		lang,
+		u.baseURL,
+	)
+
 	awardEntities, err := u.awardRepo.FindActiveByLanguage(ctx, lang)
 	if err != nil {
 		return nil, err
@@ -58,7 +72,8 @@ func (u *aboutUsecaseImpl) GetAbout(
 	)
 
 	return &AboutResponse{
-		Histories: histories,
-		Awards:    awards,
+		Histories:   histories,
+		PartnerGrid: partnerGrid,
+		Awards:      awards,
 	}, nil
 }

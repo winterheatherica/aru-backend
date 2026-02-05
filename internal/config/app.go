@@ -50,6 +50,7 @@ func Bootstrap(config *BootstrapConfig) {
 
 	aboutUsecase := usecase.NewAboutUsecase(
 		historyRepo,
+		partnerRepo,
 		awardRepo,
 		config.MinioConfig.PublicBaseURL,
 	)

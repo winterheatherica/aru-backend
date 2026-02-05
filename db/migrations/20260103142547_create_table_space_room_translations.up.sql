@@ -17,6 +17,5 @@ CREATE TABLE space_room_translations (
   UNIQUE (language, slug)
 );
 
-
 CREATE INDEX idx_space_room_translations_room ON space_room_translations(room_id);
 CREATE INDEX idx_space_room_translations_language ON space_room_translations(language);
