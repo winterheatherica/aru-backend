@@ -15,7 +15,7 @@ func NewReservationController(u usecase.ReservationUsecase) *ReservationControll
 }
 
 func (c *ReservationController) GetReservationPage(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 
 	result, err := c.Usecase.GetReservationPage(ctx.Context(), lang)
 	if err != nil {

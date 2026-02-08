@@ -17,7 +17,7 @@ func NewHomeController(u usecase.HomeUsecase) *HomeController {
 }
 
 func (c *HomeController) GetHome(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 
 	result, err := c.Usecase.GetHome(ctx.Context(), lang)
 	if err != nil {

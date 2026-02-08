@@ -17,7 +17,7 @@ func NewArticleController(u usecase.ArticleUsecase) *ArticleController {
 }
 
 func (c *ArticleController) GetArticle(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 	id := ctx.Params("id")
 
 	result, err := c.Usecase.GetArticleByID(ctx.Context(), id, lang)

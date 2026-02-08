@@ -17,7 +17,7 @@ func NewCategoryController(u usecase.CategoryUsecase) *CategoryController {
 }
 
 func (c *CategoryController) GetCategory(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 	slug := ctx.Params("slug")
 
 	result, err := c.Usecase.GetCategoryBySlug(ctx.Context(), slug, lang)

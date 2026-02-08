@@ -15,7 +15,7 @@ func NewCareerController(u usecase.CareerUsecase) *CareerController {
 }
 
 func (c *CareerController) GetCareers(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 
 	result, err := c.Usecase.GetCareers(ctx.Context(), lang)
 	if err != nil {

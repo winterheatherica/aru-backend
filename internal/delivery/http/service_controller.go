@@ -17,7 +17,7 @@ func NewServiceController(u usecase.ServiceUsecase) *ServiceController {
 }
 
 func (c *ServiceController) GetServicePageBatch(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 
 	services := []string{
 		"ARUCONTRACTOR",

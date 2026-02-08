@@ -17,7 +17,7 @@ func NewRoomController(u usecase.RoomUsecase) *RoomController {
 }
 
 func (c *RoomController) GetRoomDetail(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 	slug := ctx.Params("slug")
 
 	if slug == "" {

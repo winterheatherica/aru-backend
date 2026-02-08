@@ -17,7 +17,7 @@ func NewAboutController(u usecase.AboutUsecase) *AboutController {
 }
 
 func (c *AboutController) GetAbout(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 
 	result, err := c.Usecase.GetAbout(ctx.Context(), lang)
 	if err != nil {

@@ -17,7 +17,7 @@ func NewInformationController(u usecase.InformationUsecase) *InformationControll
 }
 
 func (c *InformationController) GetInformation(ctx *fiber.Ctx) error {
-	lang := ctx.Query("lang", "id")
+	lang := ctx.Query("lang", "ID")
 	page := ctx.QueryInt("page", 1)
 
 	var year *int
