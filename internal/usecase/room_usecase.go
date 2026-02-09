@@ -9,7 +9,9 @@ import (
 )
 
 type RoomUsecase interface {
-	GetRoomDetail(ctx context.Context, slug string, lang string) (*model.SpaceRoomDetail, error)
+	GetRoomByID(ctx context.Context, id string, lang string) (*model.SpaceRoomDetail, error)
+	ResolveRoomID(ctx context.Context, slug string) (string, error)
+	ResolveRoomSlug(ctx context.Context, id string, lang string) (string, error)
 }
 
 type roomUsecaseImpl struct {
@@ -27,22 +29,35 @@ func NewRoomUsecase(
 	}
 }
 
-func (u *roomUsecaseImpl) GetRoomDetail(
+func (u *roomUsecaseImpl) GetRoomByID(
 	ctx context.Context,
-	slug string,
+	id string,
 	lang string,
 ) (*model.SpaceRoomDetail, error) {
 
-	roomEntity, err := u.roomRepo.FindActiveBySlug(ctx, slug, lang)
+	entity, err := u.roomRepo.FindActiveByID(ctx, id, lang)
 	if err != nil {
 		return nil, err
 	}
 
-	detail := converter.SpaceRoomToDetailModel(
-		*roomEntity,
-		lang,
-		u.baseURL,
-	)
+	if entity == nil {
+		return nil, nil
+	}
 
-	return detail, nil
+	return converter.SpaceRoomToDetailModel(*entity, lang, u.baseURL), nil
+}
+
+func (u *roomUsecaseImpl) ResolveRoomID(
+	ctx context.Context,
+	slug string,
+) (string, error) {
+	return u.roomRepo.ResolveIDBySlug(ctx, slug)
+}
+
+func (u *roomUsecaseImpl) ResolveRoomSlug(
+	ctx context.Context,
+	id string,
+	lang string,
+) (string, error) {
+	return u.roomRepo.FindSlugByIDAndLang(ctx, id, lang)
 }

@@ -9,8 +9,10 @@ import (
 )
 
 type SpaceRoomRepository interface {
-	FindActiveRooms(ctx context.Context, lang string) ([]entity.SpaceRoom, error)
-	FindActiveBySlug(ctx context.Context, slug string, lang string) (*entity.SpaceRoom, error)
+	FindActiveRoomList(ctx context.Context, lang string) ([]entity.SpaceRoom, error)
+	FindActiveByID(ctx context.Context, id string, lang string) (*entity.SpaceRoom, error)
+	ResolveIDBySlug(ctx context.Context, slug string) (string, error)
+	FindSlugByIDAndLang(ctx context.Context, id, lang string) (string, error)
 }
 
 type spaceRoomRepositoryImpl struct {
@@ -18,10 +20,12 @@ type spaceRoomRepositoryImpl struct {
 }
 
 func NewSpaceRoomRepository(db *gorm.DB) SpaceRoomRepository {
-	return &spaceRoomRepositoryImpl{db: db}
+	return &spaceRoomRepositoryImpl{
+		db: db,
+	}
 }
 
-func (r *spaceRoomRepositoryImpl) FindActiveRooms(
+func (r *spaceRoomRepositoryImpl) FindActiveRoomList(
 	ctx context.Context,
 	lang string,
 ) ([]entity.SpaceRoom, error) {
@@ -29,10 +33,10 @@ func (r *spaceRoomRepositoryImpl) FindActiveRooms(
 	var rooms []entity.SpaceRoom
 
 	err := r.db.WithContext(ctx).
+		Where("is_active = ?", true).
 		Preload("Translations", "language = ?", lang).
 		Preload("Images", "is_active = ?", true).
 		Preload("Images.Translations", "language = ?", lang).
-		Where("is_active = ?", true).
 		Order("created_at DESC").
 		Find(&rooms).Error
 
@@ -43,62 +47,77 @@ func (r *spaceRoomRepositoryImpl) FindActiveRooms(
 	return rooms, nil
 }
 
-func (r *spaceRoomRepositoryImpl) FindActiveBySlug(
+func (r *spaceRoomRepositoryImpl) FindActiveByID(
 	ctx context.Context,
-	slug string,
+	id string,
 	lang string,
 ) (*entity.SpaceRoom, error) {
 
 	var room entity.SpaceRoom
 
 	err := r.db.WithContext(ctx).
+		Where("is_active = ?", true).
+		Where("id = ?", id).
 		Preload("Translations", "language = ?", lang).
 		Preload("Images", "is_active = ?", true).
 		Preload("Images.Translations", "language = ?", lang).
 		Preload("Bookings").
-		Where("is_active = ?", true).
-		Where("id IN (?)", r.subQueryRoomIDBySlug(slug, lang)).
 		First(&room).Error
 
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 
 	return &room, nil
 }
 
-func (r *spaceRoomRepositoryImpl) subQueryRoomIDBySlug(
+func (r *spaceRoomRepositoryImpl) ResolveIDBySlug(
+	ctx context.Context,
 	slug string,
-	lang string,
-) *gorm.DB {
+) (string, error) {
 
-	return r.db.
+	var id string
+
+	err := r.db.WithContext(ctx).
 		Table("space_room_translations").
 		Select("room_id").
 		Where("slug = ?", slug).
-		Where("language = ?", lang)
-}
-
-func (r *spaceRoomRepositoryImpl) FindActiveDetailBySlug(
-	ctx context.Context,
-	slug string,
-	lang string,
-) (*entity.SpaceRoom, error) {
-
-	var room entity.SpaceRoom
-
-	err := r.db.WithContext(ctx).
-		Preload("Translations", "language = ?", lang).
-		Preload("Images", "is_active = ?", true).
-		Preload("Images.Translations", "language = ?", lang).
-		Preload("Bookings").
-		Where("is_active = ?", true).
-		Where("id IN (?)", r.subQueryRoomIDBySlug(slug, lang)).
-		First(&room).Error
+		Limit(1).
+		Scan(&id).Error
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &room, nil
+	return id, nil
+}
+
+func (r *spaceRoomRepositoryImpl) FindSlugByIDAndLang(
+	ctx context.Context,
+	id string,
+	lang string,
+) (string, error) {
+
+	var slug string
+
+	err := r.db.WithContext(ctx).
+		Table("space_room_translations").
+		Select("slug").
+		Where("room_id = ?", id).
+		Where("language = ?", lang).
+		Limit(1).
+		Scan(&slug).Error
+
+	if err != nil {
+		return "", err
+	}
+
+	if slug == "" {
+		return "", nil
+	}
+
+	return slug, nil
 }

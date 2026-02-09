@@ -36,7 +36,7 @@ func (u *reservationUsecaseImpl) GetReservationPage(
 	lang string,
 ) (*ReservationResponse, error) {
 
-	roomEntities, err := u.roomRepo.FindActiveRooms(ctx, lang)
+	roomEntities, err := u.roomRepo.FindActiveRoomList(ctx, lang)
 	if err != nil {
 		return nil, err
 	}

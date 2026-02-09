@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type NewsCategory struct {
@@ -34,9 +35,9 @@ type NewsCategoryTranslation struct {
 	Slug        string  `gorm:"column:slug;not null" json:"slug"`
 	Description *string `gorm:"column:description" json:"description,omitempty"`
 
-	MetaTitle       *string  `gorm:"column:meta_title" json:"meta_title,omitempty"`
-	MetaDescription *string  `gorm:"column:meta_description" json:"meta_description,omitempty"`
-	MetaKeywords    []string `gorm:"column:meta_keywords;type:text[]" json:"meta_keywords,omitempty"`
+	MetaTitle       *string        `gorm:"column:meta_title" json:"meta_title,omitempty"`
+	MetaDescription *string        `gorm:"column:meta_description" json:"meta_description,omitempty"`
+	MetaKeywords    pq.StringArray `gorm:"column:meta_keywords;type:text[]" json:"meta_keywords,omitempty"`
 
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`
