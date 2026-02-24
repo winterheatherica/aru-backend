@@ -40,11 +40,6 @@ type NewsArticleCategory struct {
 	Description *string   `json:"description,omitempty"`
 }
 
-type ArticlePublisher struct {
-	Name      string `json:"name"`
-	AvatarURL string `json:"avatar_url"`
-}
-
 type NewsCard struct {
 	ID          uuid.UUID `json:"id"`
 	Slug        string    `json:"slug"`

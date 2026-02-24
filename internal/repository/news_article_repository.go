@@ -2,17 +2,15 @@ package repository
 
 import (
 	"context"
-	"strings"
 
 	"aru-backend/internal/entity"
-	"aru-backend/internal/model"
 
 	"gorm.io/gorm"
 )
 
 type NewsArticleRepository interface {
 	FindActiveByID(ctx context.Context, id string, lang string) (*entity.NewsArticle, error)
-	FindPublisherByArticleID(ctx context.Context, id string) (*model.ArticlePublisher, error)
+	FindPublisherByArticleID(ctx context.Context, id string) (*entity.User, error)
 	ResolveIDBySlug(ctx context.Context, slug string) (string, error)
 	FindSlugByIDAndLang(ctx context.Context, id, lang string) (string, error)
 	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
@@ -58,24 +56,23 @@ func (r *newsArticleRepositoryImpl) FindActiveByID(
 func (r *newsArticleRepositoryImpl) FindPublisherByArticleID(
 	ctx context.Context,
 	id string,
-) (*model.ArticlePublisher, error) {
-	var row model.ArticlePublisher
+) (*entity.User, error) {
+	var user entity.User
 
 	err := r.db.WithContext(ctx).
-		Table("news_articles AS na").
-		Select("COALESCE(NULLIF(TRIM(u.full_name), ''), NULLIF(TRIM(u.username), ''), NULLIF(TRIM(u.email), ''), '') AS name, COALESCE(NULLIF(TRIM(u.avatar_url), ''), '') AS avatar_url").
-		Joins("LEFT JOIN users u ON u.id = na.uploaded_by").
+		Model(&entity.User{}).
+		Joins("JOIN news_articles na ON na.uploaded_by = users.id").
 		Where("na.id = ?", id).
 		Limit(1).
-		Scan(&row).Error
-
+		First(&user).Error
 	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 
-	row.Name = strings.TrimSpace(row.Name)
-	row.AvatarURL = strings.TrimSpace(row.AvatarURL)
-	return &row, nil
+	return &user, nil
 }
 
 func (r *newsArticleRepositoryImpl) FindActiveCardList(
@@ -133,10 +130,7 @@ func (r *newsArticleRepositoryImpl) FindLatest(
 	return articles, nil
 }
 
-func (r *newsArticleRepositoryImpl) FindActiveYears(
-	ctx context.Context,
-) ([]int, error) {
-
+func (r *newsArticleRepositoryImpl) FindActiveYears(ctx context.Context) ([]int, error) {
 	var years []int
 
 	err := r.db.WithContext(ctx).

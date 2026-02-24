@@ -69,6 +69,36 @@ func NewsArticleToModel(
 	}
 }
 
+func AttachPublisherToNewsArticle(
+	out *model.NewsArticle,
+	publisher *entity.User,
+	baseURL string,
+) {
+	if out == nil || publisher == nil {
+		return
+	}
+
+	name := strings.TrimSpace(publisher.FullName)
+	if name == "" {
+		name = strings.TrimSpace(publisher.Username)
+	}
+	if name == "" {
+		name = strings.TrimSpace(publisher.Email)
+	}
+	out.PublishedBy = name
+
+	avatar := strings.TrimSpace(publisher.AvatarURL)
+	if avatar == "" {
+		return
+	}
+	if strings.HasPrefix(avatar, "http://") || strings.HasPrefix(avatar, "https://") {
+		out.PublishedByAvatarURL = &avatar
+		return
+	}
+	resolved := BuildAssetURL(baseURL, avatar)
+	out.PublishedByAvatarURL = &resolved
+}
+
 func NewsArticleToNewsCard(
 	article entity.NewsArticle,
 	lang string,

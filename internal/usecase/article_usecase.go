@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"strings"
 
 	"aru-backend/internal/model"
 	"aru-backend/internal/model/converter"
@@ -54,20 +53,7 @@ func (u *articleUsecaseImpl) GetArticleByID(
 	if err != nil {
 		return nil, err
 	}
-
-	if publisher != nil {
-		res.PublishedBy = publisher.Name
-
-		avatar := strings.TrimSpace(publisher.AvatarURL)
-		if avatar != "" {
-			if strings.HasPrefix(avatar, "http://") || strings.HasPrefix(avatar, "https://") {
-				res.PublishedByAvatarURL = &avatar
-			} else {
-				resolved := converter.BuildAssetURL(u.baseURL, avatar)
-				res.PublishedByAvatarURL = &resolved
-			}
-		}
-	}
+	converter.AttachPublisherToNewsArticle(res, publisher, u.baseURL)
 
 	return res, nil
 }
