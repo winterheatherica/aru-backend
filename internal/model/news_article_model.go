@@ -8,7 +8,9 @@ type NewsArticle struct {
 	ImageURL *string `json:"image_url,omitempty"`
 
 	IsActive    bool   `json:"is_active"`
-	PublishedAt string `json:"published_at"`
+	PublishedAt         string  `json:"published_at"`
+	PublishedBy         string  `json:"published_by,omitempty"`
+	PublishedByAvatarURL *string `json:"published_by_avatar_url,omitempty"`
 
 	ViewCount int `json:"view_count"`
 	LikeCount int `json:"like_count"`
@@ -36,6 +38,11 @@ type NewsArticleCategory struct {
 	Name        string    `json:"name"`
 	Slug        string    `json:"slug"`
 	Description *string   `json:"description,omitempty"`
+}
+
+type ArticlePublisher struct {
+	Name      string `json:"name"`
+	AvatarURL string `json:"avatar_url"`
 }
 
 type NewsCard struct {
