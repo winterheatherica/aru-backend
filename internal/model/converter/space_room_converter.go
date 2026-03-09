@@ -1,8 +1,6 @@
 package converter
 
 import (
-	"time"
-
 	"aru-backend/internal/entity"
 	"aru-backend/internal/model"
 )
@@ -42,18 +40,6 @@ func SpaceRoomToCardModel(
 		mainImageURL = &url
 	}
 
-	isAvailable := isRoomAvailable(room.Bookings, time.Now())
-
-	statusText := "Available"
-	actionLabel := "View & Book"
-	actionState := "active"
-
-	if !isAvailable {
-		statusText = "Fully booked"
-		actionLabel = "Unavailable"
-		actionState = "disabled"
-	}
-
 	facilities := []string{}
 	if tr.Facilities != nil {
 		facilities = []string(tr.Facilities)
@@ -76,13 +62,7 @@ func SpaceRoomToCardModel(
 
 		Facilities: facilities,
 
-		IsAvailable: isAvailable,
-		StatusText:  statusText,
-
 		Price: nil,
-
-		ActionLabel: actionLabel,
-		ActionState: actionState,
 	}
 }
 
@@ -119,18 +99,6 @@ func SpaceRoomToDetailModel(
 		})
 	}
 
-	isAvailable := isRoomAvailable(room.Bookings, time.Now())
-
-	statusText := "Available"
-	actionLabel := "View & Book"
-	actionState := "active"
-
-	if !isAvailable {
-		statusText = "Fully booked"
-		actionLabel = "Unavailable"
-		actionState = "disabled"
-	}
-
 	facilities := []string{}
 	if tr.Facilities != nil {
 		facilities = []string(tr.Facilities)
@@ -150,13 +118,7 @@ func SpaceRoomToDetailModel(
 		Floor:    room.Floor,
 
 		Facilities: facilities,
-
-		IsAvailable: isAvailable,
-		StatusText:  statusText,
-		Price:       nil,
-
-		ActionLabel: actionLabel,
-		ActionState: actionState,
+		Price:      nil,
 	}
 }
 
@@ -184,19 +146,4 @@ func findSpaceRoomImageTranslation(
 		}
 	}
 	return nil
-}
-
-func isRoomAvailable(
-	bookings []entity.SpaceRoomBooking,
-	now time.Time,
-) bool {
-
-	for _, b := range bookings {
-		if b.Status != "CANCELLED" &&
-			now.After(b.StartTime) &&
-			now.Before(b.EndTime) {
-			return false
-		}
-	}
-	return true
 }

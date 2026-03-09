@@ -19,13 +19,7 @@ type SpaceRoomCard struct {
 
 	Facilities []string `json:"facilities"`
 
-	IsAvailable bool   `json:"is_available"`
-	StatusText  string `json:"status_text"`
-
 	Price *float64 `json:"price,omitempty"`
-
-	ActionLabel string `json:"action_label"`
-	ActionState string `json:"action_state"`
 }
 
 type SpaceRoomDetail struct {
@@ -43,13 +37,7 @@ type SpaceRoomDetail struct {
 
 	Facilities []string `json:"facilities"`
 
-	IsAvailable bool   `json:"is_available"`
-	StatusText  string `json:"status_text"`
-
 	Price *float64 `json:"price,omitempty"`
-
-	ActionLabel string `json:"action_label"`
-	ActionState string `json:"action_state"`
 }
 
 type SpaceRoomImage struct {

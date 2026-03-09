@@ -61,7 +61,6 @@ func (r *spaceRoomRepositoryImpl) FindActiveByID(
 		Preload("Translations", "language = ?", lang).
 		Preload("Images", "is_active = ?", true).
 		Preload("Images.Translations", "language = ?", lang).
-		Preload("Bookings").
 		First(&room).Error
 
 	if err != nil {
