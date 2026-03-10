@@ -5,6 +5,13 @@ import (
 	"aru-backend/internal/model"
 )
 
+func stringValue(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
 func UserToResponse(user *entity.User) *model.UserResponse {
 	if user == nil {
 		return nil
@@ -13,9 +20,9 @@ func UserToResponse(user *entity.User) *model.UserResponse {
 	return &model.UserResponse{
 		ID:        user.ID,
 		Email:     user.Email,
-		Username:  user.Username,
-		FullName:  user.FullName,
-		AvatarURL: user.AvatarURL,
+		Username:  stringValue(user.Username),
+		FullName:  stringValue(user.FullName),
+		AvatarURL: stringValue(user.AvatarURL),
 		Role:      user.Role,
 		IsActive:  user.IsActive,
 		CreatedAt: user.CreatedAt,
@@ -31,7 +38,7 @@ func UserToAuthUser(user *entity.User) *model.AuthUser {
 	return &model.AuthUser{
 		ID:       user.ID,
 		Email:    user.Email,
-		Username: user.Username,
+		Username: stringValue(user.Username),
 		Role:     user.Role,
 	}
 }

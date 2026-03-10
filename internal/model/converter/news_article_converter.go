@@ -78,16 +78,16 @@ func AttachPublisherToNewsArticle(
 		return
 	}
 
-	name := strings.TrimSpace(publisher.FullName)
+	name := strings.TrimSpace(stringValue(publisher.FullName))
 	if name == "" {
-		name = strings.TrimSpace(publisher.Username)
+		name = strings.TrimSpace(stringValue(publisher.Username))
 	}
 	if name == "" {
 		name = strings.TrimSpace(publisher.Email)
 	}
 	out.PublishedBy = name
 
-	avatar := strings.TrimSpace(publisher.AvatarURL)
+	avatar := strings.TrimSpace(stringValue(publisher.AvatarURL))
 	if avatar == "" {
 		return
 	}
