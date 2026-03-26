@@ -2,9 +2,13 @@ package config
 
 import (
 	"aru-backend/internal/delivery/http"
+	"aru-backend/internal/delivery/http/middleware"
 	"aru-backend/internal/delivery/http/route"
 	"aru-backend/internal/repository"
 	"aru-backend/internal/usecase"
+	"aru-backend/internal/usecase/admin"
+
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
@@ -131,9 +135,35 @@ func Bootstrap(config *BootstrapConfig) {
 
 	categoryController := http.NewCategoryController(categoryUsecase)
 
+	// --- User/Auth Module ---
+	userRepo := repository.NewUserRepository(config.DB)
+	sessionRepo := repository.NewSessionRepository(config.DB)
+	jwtSecret := config.Config.GetString("jwt.secret")
+	jwtExpiry := time.Duration(config.Config.GetInt("jwt.expiryHours")) * time.Hour
+	if jwtExpiry <= 0 {
+		jwtExpiry = 24 * time.Hour
+	}
+	userUsecase := usecase.NewUserUseCase(config.DB, config.Log, config.Validate, userRepo, sessionRepo, jwtSecret, jwtExpiry)
+	userController := http.NewUserController(userUsecase, config.Log)
+
+	// --- Admin Hero Module ---
+	heroAdminUsecase := admin.NewHeroUsecase(
+		heroRepo,
+		config.MinioClient,
+		config.MinioConfig.Bucket,
+		config.MinioConfig.PublicBaseURL,
+	)
+	heroAdminController := http.NewHeroAdminController(heroAdminUsecase)
+
+	authMiddleware := middleware.NewAuthMiddleware()
+
 	// --- Setup Routes ---
 	routeConfig := route.RouteConfig{
 		App: config.App,
+
+		AuthMiddleware: authMiddleware.Handle(),
+
+		UserController: userController,
 
 		HomeController:        homeController,
 		AboutController:       aboutController,
@@ -146,6 +176,8 @@ func Bootstrap(config *BootstrapConfig) {
 
 		ArticleController:  articleController,
 		CategoryController: categoryController,
+
+		HeroAdminController: heroAdminController,
 	}
 
 	routeConfig.Setup()

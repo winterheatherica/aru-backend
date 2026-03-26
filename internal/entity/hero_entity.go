@@ -31,9 +31,9 @@ type HeroSlideTranslation struct {
 
 	Language string `gorm:"column:language;type:language;not null" json:"language"`
 
-	Alt      *string `gorm:"column:alt" json:"alt,omitempty"`
-	Title    *string `gorm:"column:title" json:"title,omitempty"`
-	CtaLabel *string `gorm:"column:cta_label" json:"cta_label,omitempty"`
+	Alt         *string `gorm:"column:alt" json:"alt,omitempty"`
+	Title       *string `gorm:"column:title" json:"title,omitempty"`
+	Description *string `gorm:"column:description" json:"description,omitempty"`
 
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime" json:"updated_at"`

@@ -23,6 +23,8 @@ type RouteConfig struct {
 
 	ArticleController  *http.ArticleController
 	CategoryController *http.CategoryController
+
+	HeroAdminController *http.HeroAdminController
 }
 
 func (c *RouteConfig) Setup() {
@@ -31,6 +33,9 @@ func (c *RouteConfig) Setup() {
 }
 
 func (c *RouteConfig) SetupGuestRoute() {
+	c.App.Post("/api/auth/login", c.UserController.Login)
+	c.App.Get("/api/me", c.UserController.Me)
+	c.App.Post("/api/auth/logout", c.UserController.Logout)
 
 	c.App.Get("/api/home", c.HomeController.GetHome)
 	c.App.Get("/api/about", c.AboutController.GetAbout)
@@ -46,9 +51,17 @@ func (c *RouteConfig) SetupGuestRoute() {
 	c.App.Get("/api/article/:id", c.ArticleController.GetArticleDetail)
 
 	c.App.Get("/api/category/:slug", c.CategoryController.GetCategory)
-
 }
 
 func (c *RouteConfig) SetupAuthRoute() {
+	admin := c.App.Group("/api/admin")
+	if c.AuthMiddleware != nil {
+		admin.Use(c.AuthMiddleware)
+	}
 
+	admin.Get("/hero", c.HeroAdminController.List)
+	admin.Get("/hero/:id", c.HeroAdminController.GetByID)
+	admin.Post("/hero", c.HeroAdminController.Create)
+	admin.Put("/hero/:id", c.HeroAdminController.Update)
+	admin.Delete("/hero/:id", c.HeroAdminController.HardDelete)
 }

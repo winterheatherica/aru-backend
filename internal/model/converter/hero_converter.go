@@ -15,24 +15,24 @@ func HeroSlideToModel(
 
 	alt := ""
 	var title *string
-	var ctaLabel *string
+	var description *string
 
 	if trans != nil {
 		if trans.Alt != nil {
 			alt = *trans.Alt
 		}
 		title = trans.Title
-		ctaLabel = trans.CtaLabel
+		description = trans.Description
 	}
 
 	return &model.HeroSlide{
-		ID:       slide.ID,
-		Src:      BuildAssetURL(baseURL, slide.ImagePath),
-		Alt:      alt,
-		Title:    title,
-		CtaLabel: ctaLabel,
-		Banner:   slide.Banner,
-		Order:    slide.OrderIndex,
+		ID:          slide.ID,
+		Src:         BuildAssetURL(baseURL, slide.ImagePath),
+		Alt:         alt,
+		Title:       title,
+		Description: description,
+		Banner:      slide.Banner,
+		Order:       slide.OrderIndex,
 	}
 }
 

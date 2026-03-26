@@ -23,32 +23,3 @@ type AuthResponse struct {
 	RefreshToken string        `json:"refresh_token,omitempty"`
 	User         *UserResponse `json:"user"`
 }
-
-// type VerifyUserRequest struct {
-// 	Token string `validate:"required,max=100"`
-// }
-
-// type RegisterUserRequest struct {
-// 	ID       string `json:"id" validate:"required,max=100"`
-// 	Password string `json:"password" validate:"required,max=100"`
-// 	Name     string `json:"name" validate:"required,max=100"`
-// }
-
-// type UpdateUserRequest struct {
-// 	ID       string `json:"-" validate:"required,max=100"`
-// 	Password string `json:"password,omitempty" validate:"max=100"`
-// 	Name     string `json:"name,omitempty" validate:"max=100"`
-// }
-
-// type LoginUserRequest struct {
-// 	ID       string `json:"id" validate:"required,max=100"`
-// 	Password string `json:"password" validate:"required,max=100"`
-// }
-
-// type LogoutUserRequest struct {
-// 	ID string `json:"id" validate:"required,max=100"`
-// }
-
-// type GetUserRequest struct {
-// 	ID string `json:"id" validate:"required,max=100"`
-// }

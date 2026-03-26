@@ -6,7 +6,7 @@ CREATE TABLE hero_slide_translations (
 
   alt text NOT NULL,
   title text NOT NULL,
-  cta_label text,
+  description text,
 
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),

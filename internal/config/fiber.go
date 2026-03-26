@@ -14,9 +14,10 @@ func NewFiber(config *viper.Viper) *fiber.App {
 	})
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000, http://127.0.0.1:3000",
-		AllowMethods: "GET,POST,PUT,DELETE,PATCH,OPTIONS",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowOrigins:     config.GetString("web.cors.allowOrigins"),
+		AllowMethods:     config.GetString("web.cors.allowMethods"),
+		AllowHeaders:     config.GetString("web.cors.allowHeaders"),
+		AllowCredentials: config.GetBool("web.cors.allowCredentials"),
 	}))
 
 	return app
