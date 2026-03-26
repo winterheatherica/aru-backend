@@ -177,6 +177,10 @@ func Bootstrap(config *BootstrapConfig) {
 	)
 	clientAdminController := http.NewClientAdminController(clientAdminUsecase)
 
+	// --- Admin History Module ---
+	historyAdminUsecase := admin.NewHistoryUsecase(historyRepo)
+	historyAdminController := http.NewHistoryAdminController(historyAdminUsecase)
+
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	// --- Setup Routes ---
@@ -203,6 +207,7 @@ func Bootstrap(config *BootstrapConfig) {
 		AwardAdminController:         awardAdminController,
 		CareerVacancyAdminController: careerVacancyAdminController,
 		ClientAdminController:        clientAdminController,
+		HistoryAdminController:       historyAdminController,
 	}
 
 	routeConfig.Setup()
