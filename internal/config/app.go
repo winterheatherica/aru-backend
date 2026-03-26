@@ -168,6 +168,15 @@ func Bootstrap(config *BootstrapConfig) {
 	careerVacancyAdminUsecase := admin.NewCareerVacancyUsecase(careerVacancyRepo)
 	careerVacancyAdminController := http.NewCareerVacancyAdminController(careerVacancyAdminUsecase)
 
+	// --- Admin Client Module ---
+	clientAdminUsecase := admin.NewClientUsecase(
+		clientRepo,
+		config.MinioClient,
+		config.MinioConfig.Bucket,
+		config.MinioConfig.PublicBaseURL,
+	)
+	clientAdminController := http.NewClientAdminController(clientAdminUsecase)
+
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	// --- Setup Routes ---
@@ -193,6 +202,7 @@ func Bootstrap(config *BootstrapConfig) {
 		HeroAdminController:          heroAdminController,
 		AwardAdminController:         awardAdminController,
 		CareerVacancyAdminController: careerVacancyAdminController,
+		ClientAdminController:        clientAdminController,
 	}
 
 	routeConfig.Setup()
