@@ -155,6 +155,15 @@ func Bootstrap(config *BootstrapConfig) {
 	)
 	heroAdminController := http.NewHeroAdminController(heroAdminUsecase)
 
+	// --- Admin Award Module ---
+	awardAdminUsecase := admin.NewAwardUsecase(
+		awardRepo,
+		config.MinioClient,
+		config.MinioConfig.Bucket,
+		config.MinioConfig.PublicBaseURL,
+	)
+	awardAdminController := http.NewAwardAdminController(awardAdminUsecase)
+
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	// --- Setup Routes ---
@@ -177,7 +186,8 @@ func Bootstrap(config *BootstrapConfig) {
 		ArticleController:  articleController,
 		CategoryController: categoryController,
 
-		HeroAdminController: heroAdminController,
+		HeroAdminController:  heroAdminController,
+		AwardAdminController: awardAdminController,
 	}
 
 	routeConfig.Setup()
