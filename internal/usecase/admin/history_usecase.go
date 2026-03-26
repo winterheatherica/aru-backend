@@ -9,6 +9,7 @@ import (
 	"aru-backend/internal/model"
 	"aru-backend/internal/repository"
 
+	"github.com/bregydoc/gtranslate"
 	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
@@ -24,7 +25,9 @@ type HistoryUsecase interface {
 
 type historyUsecaseImpl struct{ repo repository.HistoryRepository }
 
-func NewHistoryUsecase(repo repository.HistoryRepository) HistoryUsecase { return &historyUsecaseImpl{repo: repo} }
+func NewHistoryUsecase(repo repository.HistoryRepository) HistoryUsecase {
+	return &historyUsecaseImpl{repo: repo}
+}
 
 func normLang(lang string) string {
 	l := strings.ToUpper(strings.TrimSpace(lang))
@@ -82,6 +85,24 @@ func (u *historyUsecaseImpl) Create(ctx context.Context, input model.HistoryUpse
 		return nil, err
 	}
 
+	if lang == "ID" {
+		if _, err := u.repo.FindByYearAndLanguage(ctx, *input.Year, "EN"); err == gorm.ErrRecordNotFound {
+			enTitle := translateTextPtrHistory(input.Title, "id", "en")
+			enDesc := translateTextPtrHistory(input.Description, "id", "en")
+			enHeaders, enRows := translateMatrix(headers, rows, "id", "en")
+			enItem := &entity.History{
+				Language:     "EN",
+				Year:         input.Year,
+				Title:        enTitle,
+				Description:  enDesc,
+				TableHeaders: enHeaders,
+				TableRows:    toPgText2D(enRows),
+				IsActive:     input.IsActive,
+			}
+			_ = u.repo.Create(ctx, enItem)
+		}
+	}
+
 	created, err := u.repo.FindByID(ctx, item.ID)
 	if err != nil {
 		res := toHistoryAdminItem(*item)
@@ -129,7 +150,9 @@ func (u *historyUsecaseImpl) Update(ctx context.Context, id uuid.UUID, input mod
 	return &res, nil
 }
 
-func (u *historyUsecaseImpl) HardDelete(ctx context.Context, id uuid.UUID) error { return u.repo.DeleteByID(ctx, id) }
+func (u *historyUsecaseImpl) HardDelete(ctx context.Context, id uuid.UUID) error {
+	return u.repo.DeleteByID(ctx, id)
+}
 
 func toHistoryAdminItem(h entity.History) model.HistoryAdminItem {
 	return model.HistoryAdminItem{
@@ -234,6 +257,51 @@ func normalizeHistoryMatrix(headers []string, rows [][]string) ([]string, [][]st
 		}
 	}
 	return nHeaders, nRows
+}
+
+func translateTextPtrHistory(text *string, fromLang, toLang string) *string {
+	if text == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*text)
+	if trimmed == "" {
+		return nil
+	}
+	translated, err := gtranslate.TranslateWithParams(trimmed, gtranslate.TranslationParams{From: fromLang, To: toLang})
+	if err != nil || strings.TrimSpace(translated) == "" {
+		fallback := trimmed
+		return &fallback
+	}
+	res := strings.TrimSpace(translated)
+	return &res
+}
+
+func translateText(text, fromLang, toLang string) string {
+	trimmed := strings.TrimSpace(text)
+	if trimmed == "" {
+		return ""
+	}
+	translated, err := gtranslate.TranslateWithParams(trimmed, gtranslate.TranslationParams{From: fromLang, To: toLang})
+	if err != nil || strings.TrimSpace(translated) == "" {
+		return trimmed
+	}
+	return strings.TrimSpace(translated)
+}
+
+func translateMatrix(headers []string, rows [][]string, fromLang, toLang string) ([]string, [][]string) {
+	enHeaders := make([]string, 0, len(headers))
+	for _, h := range headers {
+		enHeaders = append(enHeaders, translateText(h, fromLang, toLang))
+	}
+	enRows := make([][]string, 0, len(rows))
+	for _, r := range rows {
+		enRow := make([]string, 0, len(r))
+		for _, c := range r {
+			enRow = append(enRow, translateText(c, fromLang, toLang))
+		}
+		enRows = append(enRows, enRow)
+	}
+	return enHeaders, enRows
 }
 
 func toPgText2D(rows [][]string) pgtype.TextArray {

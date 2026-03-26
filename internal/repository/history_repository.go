@@ -71,10 +71,11 @@ func (r *historyRepositoryImpl) FindByYearAndLanguage(ctx context.Context, year 
 func (r *historyRepositoryImpl) Create(ctx context.Context, item *entity.History) error {
 	rowsLiteral := textArray2DLiteral(item.TableRows)
 
-	return r.db.WithContext(ctx).Raw(`
+	var idStr string
+	err := r.db.WithContext(ctx).Raw(`
 		INSERT INTO histories (language, year, title, description, table_headers, table_rows, is_active, uploaded_by)
 		VALUES (?, ?, ?, ?, ?, ?::text[][], ?, ?)
-		RETURNING id
+		RETURNING id::text
 	`,
 		item.Language,
 		item.Year,
@@ -84,7 +85,16 @@ func (r *historyRepositoryImpl) Create(ctx context.Context, item *entity.History
 		rowsLiteral,
 		item.IsActive,
 		item.UploadedBy,
-	).Scan(&item.ID).Error
+	).Scan(&idStr).Error
+	if err != nil {
+		return err
+	}
+	parsed, perr := uuid.Parse(idStr)
+	if perr != nil {
+		return perr
+	}
+	item.ID = parsed
+	return nil
 }
 
 func (r *historyRepositoryImpl) Update(ctx context.Context, item *entity.History) error {
