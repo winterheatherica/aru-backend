@@ -164,6 +164,10 @@ func Bootstrap(config *BootstrapConfig) {
 	)
 	awardAdminController := http.NewAwardAdminController(awardAdminUsecase)
 
+	// --- Admin Career Vacancy Module ---
+	careerVacancyAdminUsecase := admin.NewCareerVacancyUsecase(careerVacancyRepo)
+	careerVacancyAdminController := http.NewCareerVacancyAdminController(careerVacancyAdminUsecase)
+
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	// --- Setup Routes ---
@@ -186,8 +190,9 @@ func Bootstrap(config *BootstrapConfig) {
 		ArticleController:  articleController,
 		CategoryController: categoryController,
 
-		HeroAdminController:  heroAdminController,
-		AwardAdminController: awardAdminController,
+		HeroAdminController:          heroAdminController,
+		AwardAdminController:         awardAdminController,
+		CareerVacancyAdminController: careerVacancyAdminController,
 	}
 
 	routeConfig.Setup()

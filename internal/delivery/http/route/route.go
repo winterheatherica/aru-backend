@@ -24,8 +24,9 @@ type RouteConfig struct {
 	ArticleController  *http.ArticleController
 	CategoryController *http.CategoryController
 
-	HeroAdminController  *http.HeroAdminController
-	AwardAdminController *http.AwardAdminController
+	HeroAdminController          *http.HeroAdminController
+	AwardAdminController         *http.AwardAdminController
+	CareerVacancyAdminController *http.CareerVacancyAdminController
 }
 
 func (c *RouteConfig) Setup() {
@@ -71,4 +72,10 @@ func (c *RouteConfig) SetupAuthRoute() {
 	admin.Post("/award", c.AwardAdminController.Create)
 	admin.Put("/award/:id", c.AwardAdminController.Update)
 	admin.Delete("/award/:id", c.AwardAdminController.HardDelete)
+
+	admin.Get("/career-vacancy", c.CareerVacancyAdminController.List)
+	admin.Get("/career-vacancy/:id", c.CareerVacancyAdminController.GetByID)
+	admin.Post("/career-vacancy", c.CareerVacancyAdminController.Create)
+	admin.Put("/career-vacancy/:id", c.CareerVacancyAdminController.Update)
+	admin.Delete("/career-vacancy/:id", c.CareerVacancyAdminController.HardDelete)
 }
