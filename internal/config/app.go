@@ -181,6 +181,10 @@ func Bootstrap(config *BootstrapConfig) {
 	historyAdminUsecase := admin.NewHistoryUsecase(historyRepo)
 	historyAdminController := http.NewHistoryAdminController(historyAdminUsecase)
 
+	// --- Admin News Category Module ---
+	newsCategoryAdminUsecase := admin.NewNewsCategoryUsecase(categoryRepo)
+	newsCategoryAdminController := http.NewNewsCategoryAdminController(newsCategoryAdminUsecase)
+
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	// --- Setup Routes ---
@@ -208,6 +212,7 @@ func Bootstrap(config *BootstrapConfig) {
 		CareerVacancyAdminController: careerVacancyAdminController,
 		ClientAdminController:        clientAdminController,
 		HistoryAdminController:       historyAdminController,
+		NewsCategoryAdminController:  newsCategoryAdminController,
 	}
 
 	routeConfig.Setup()
