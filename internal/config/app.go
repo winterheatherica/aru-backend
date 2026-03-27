@@ -203,6 +203,10 @@ func Bootstrap(config *BootstrapConfig) {
 	newsCategoryAdminUsecase := admin.NewNewsCategoryUsecase(categoryRepo)
 	newsCategoryAdminController := http.NewNewsCategoryAdminController(newsCategoryAdminUsecase)
 
+	// --- Admin User Module ---
+	userAdminUsecase := admin.NewUserUsecase(userRepo)
+	userAdminController := http.NewUserAdminController(userAdminUsecase)
+
 	authMiddleware := middleware.NewAuthMiddleware()
 
 	// --- Setup Routes ---
@@ -233,6 +237,7 @@ func Bootstrap(config *BootstrapConfig) {
 		PromoSlideAdminController:    promoSlideAdminController,
 		HistoryAdminController:       historyAdminController,
 		NewsCategoryAdminController:  newsCategoryAdminController,
+		UserAdminController:          userAdminController,
 	}
 
 	routeConfig.Setup()
