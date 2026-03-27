@@ -186,6 +186,15 @@ func Bootstrap(config *BootstrapConfig) {
 	)
 	partnerAdminController := http.NewPartnerAdminController(partnerAdminUsecase)
 
+	// --- Admin Promo Slide Module ---
+	promoSlideAdminUsecase := admin.NewPromoSlideUsecase(
+		promoRepo,
+		config.MinioClient,
+		config.MinioConfig.Bucket,
+		config.MinioConfig.PublicBaseURL,
+	)
+	promoSlideAdminController := http.NewPromoSlideAdminController(promoSlideAdminUsecase)
+
 	// --- Admin History Module ---
 	historyAdminUsecase := admin.NewHistoryUsecase(historyRepo)
 	historyAdminController := http.NewHistoryAdminController(historyAdminUsecase)
@@ -221,6 +230,7 @@ func Bootstrap(config *BootstrapConfig) {
 		CareerVacancyAdminController: careerVacancyAdminController,
 		ClientAdminController:        clientAdminController,
 		PartnerAdminController:       partnerAdminController,
+		PromoSlideAdminController:    promoSlideAdminController,
 		HistoryAdminController:       historyAdminController,
 		NewsCategoryAdminController:  newsCategoryAdminController,
 	}
