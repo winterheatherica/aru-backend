@@ -1,6 +1,7 @@
 package http
 
 import (
+	"aru-backend/internal/model"
 	"aru-backend/internal/usecase"
 	"time"
 
@@ -85,4 +86,23 @@ func (c *UserController) Logout(ctx *fiber.Ctx) error {
 
 	ctx.Cookie(&fiber.Cookie{Name: "session", Value: "", Path: "/", MaxAge: -1})
 	return ctx.JSON(fiber.Map{"message": "ok"})
+}
+
+func (c *UserController) UpdateMe(ctx *fiber.Ctx) error {
+	token := ctx.Cookies("session")
+	if token == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "unauthorized"})
+	}
+
+	var req model.MeUpdateInput
+	if err := ctx.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+
+	updated, err := c.UseCase.UpdateCurrentUserByAccessToken(token, req)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return ctx.JSON(updated)
 }

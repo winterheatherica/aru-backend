@@ -43,6 +43,7 @@ func (c *RouteConfig) Setup() {
 func (c *RouteConfig) SetupGuestRoute() {
 	c.App.Post("/api/auth/login", c.UserController.Login)
 	c.App.Get("/api/me", c.UserController.Me)
+	c.App.Put("/api/me", c.UserController.UpdateMe)
 	c.App.Post("/api/auth/logout", c.UserController.Logout)
 
 	c.App.Get("/api/home", c.HomeController.GetHome)

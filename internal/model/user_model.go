@@ -45,3 +45,10 @@ type UserAdminItem struct {
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
+
+type MeUpdateInput struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	FullName string `json:"full_name"`
+	Password string `json:"password,omitempty"`
+}

@@ -6,6 +6,7 @@ import (
 	"aru-backend/internal/model/converter"
 	"aru-backend/internal/repository"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -156,4 +157,65 @@ func (u *UserUseCase) LogoutByAccessToken(token string) error {
 		return nil
 	}
 	return u.SessRepo.RevokeByAccessToken(token, "USER_LOGOUT")
+}
+
+func (u *UserUseCase) UpdateCurrentUserByAccessToken(token string, input model.MeUpdateInput) (*model.UserResponse, error) {
+	if token == "" {
+		return nil, errors.New("unauthorized")
+	}
+	if err := u.parseJWT(token); err != nil {
+		return nil, err
+	}
+
+	session, err := u.SessRepo.FindActiveByAccessToken(token)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &session.User
+	newEmail := strings.TrimSpace(input.Email)
+	newUsername := strings.TrimSpace(input.Username)
+	newFullName := strings.TrimSpace(input.FullName)
+
+	if newEmail == "" || newUsername == "" || newFullName == "" {
+		return nil, errors.New("email, username, and full_name are required")
+	}
+
+	if !strings.EqualFold(newEmail, user.Email) {
+		if existing, fErr := u.UserRepo.FindByEmail(newEmail); fErr == nil && existing != nil && existing.ID != user.ID {
+			return nil, fmt.Errorf("email already exists")
+		}
+	}
+
+	if !strings.EqualFold(newUsername, stringValue(user.Username)) {
+		if existing, fErr := u.UserRepo.FindByEmailOrUsername(newUsername); fErr == nil && existing != nil && existing.ID != user.ID {
+			return nil, fmt.Errorf("username already exists")
+		}
+	}
+
+	user.Email = newEmail
+	user.Username = &newUsername
+	user.FullName = &newFullName
+
+	if strings.TrimSpace(input.Password) != "" {
+		hash, hErr := bcrypt.GenerateFromPassword([]byte(strings.TrimSpace(input.Password)), bcrypt.DefaultCost)
+		if hErr != nil {
+			return nil, hErr
+		}
+		user.Password = string(hash)
+		now := time.Now()
+		user.LastPasswordChange = &now
+	}
+
+	if err := u.UserRepo.Update(user); err != nil {
+		return nil, err
+	}
+	return converter.UserToResponse(user), nil
+}
+
+func stringValue(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
 }
