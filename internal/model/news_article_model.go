@@ -1,6 +1,10 @@
 package model
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type NewsArticle struct {
 	ID uuid.UUID `json:"id"`
@@ -47,4 +51,49 @@ type NewsCard struct {
 	Summary     string    `json:"summary"`
 	ImagePath   *string   `json:"image_path,omitempty"`
 	PublishedAt string    `json:"published_at"`
+}
+
+type NewsArticleUpsertInput struct {
+	Language        string     `json:"language"`
+	Slug            string     `json:"slug"`
+	Title           string     `json:"title"`
+	Content         string     `json:"content"`
+	MetaTitle       *string    `json:"meta_title"`
+	MetaDescription *string    `json:"meta_description"`
+	MetaKeywords    []string   `json:"meta_keywords"`
+	CategoryIDs     []string   `json:"category_ids"`
+	UploadedBy      *uuid.UUID `json:"uploaded_by,omitempty"`
+	PublishedAt     time.Time  `json:"published_at"`
+	IsActive        bool       `json:"is_active"`
+}
+
+type NewsArticleAdminTranslation struct {
+	Language        string   `json:"language"`
+	Slug            string   `json:"slug"`
+	Title           string   `json:"title"`
+	Content         string   `json:"content"`
+	MetaTitle       *string  `json:"meta_title,omitempty"`
+	MetaDescription *string  `json:"meta_description,omitempty"`
+	MetaKeywords    []string `json:"meta_keywords,omitempty"`
+}
+
+type NewsArticleAdminCategory struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+	Slug string    `json:"slug"`
+}
+
+type NewsArticleAdminItem struct {
+	ID             uuid.UUID                     `json:"id"`
+	ImagePath      *string                       `json:"image_path,omitempty"`
+	ImageURL       *string                       `json:"image_url,omitempty"`
+	IsActive       bool                          `json:"is_active"`
+	PublishedAt    time.Time                     `json:"published_at"`
+	ViewCount      int                           `json:"view_count"`
+	LikeCount      int                           `json:"like_count"`
+	UploadedBy     *uuid.UUID                    `json:"uploaded_by,omitempty"`
+	UploadedByName *string                       `json:"uploaded_by_name,omitempty"`
+	CategoryIDs    []uuid.UUID                   `json:"category_ids,omitempty"`
+	Categories     []NewsArticleAdminCategory    `json:"categories,omitempty"`
+	Translations   []NewsArticleAdminTranslation `json:"translations"`
 }

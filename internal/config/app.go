@@ -203,6 +203,15 @@ func Bootstrap(config *BootstrapConfig) {
 	newsCategoryAdminUsecase := admin.NewNewsCategoryUsecase(categoryRepo)
 	newsCategoryAdminController := http.NewNewsCategoryAdminController(newsCategoryAdminUsecase)
 
+	// --- Admin News Article Module ---
+	newsArticleAdminUsecase := admin.NewNewsArticleUsecase(
+		newsArticleRepo,
+		config.MinioClient,
+		config.MinioConfig.Bucket,
+		config.MinioConfig.PublicBaseURL,
+	)
+	newsArticleAdminController := http.NewNewsArticleAdminController(newsArticleAdminUsecase)
+
 	// --- Admin User Module ---
 	userAdminUsecase := admin.NewUserUsecase(userRepo)
 	userAdminController := http.NewUserAdminController(userAdminUsecase)
@@ -237,6 +246,7 @@ func Bootstrap(config *BootstrapConfig) {
 		PromoSlideAdminController:    promoSlideAdminController,
 		HistoryAdminController:       historyAdminController,
 		NewsCategoryAdminController:  newsCategoryAdminController,
+		NewsArticleAdminController:   newsArticleAdminController,
 		UserAdminController:          userAdminController,
 	}
 

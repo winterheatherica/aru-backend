@@ -2,10 +2,13 @@ package repository
 
 import (
 	"context"
+	"strings"
 
 	"aru-backend/internal/entity"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type NewsArticleRepository interface {
@@ -16,6 +19,16 @@ type NewsArticleRepository interface {
 	FindActiveCardList(ctx context.Context, lang string, year *int, limit int, offset int) ([]entity.NewsArticle, error)
 	FindLatest(ctx context.Context, lang string, limit int) ([]entity.NewsArticle, error)
 	FindActiveYears(ctx context.Context) ([]int, error)
+
+	FindAll(ctx context.Context) ([]entity.NewsArticle, error)
+	FindByID(ctx context.Context, id uuid.UUID) (*entity.NewsArticle, error)
+	Create(ctx context.Context, item *entity.NewsArticle) error
+	Update(ctx context.Context, item *entity.NewsArticle) error
+	UpsertTranslation(ctx context.Context, item *entity.NewsArticleTranslation) error
+	DeleteByID(ctx context.Context, id uuid.UUID) error
+	IsSlugExists(ctx context.Context, slug, lang string, excludeArticleID *uuid.UUID) (bool, error)
+	ReplaceCategories(ctx context.Context, articleID uuid.UUID, categoryIDs []uuid.UUID) error
+	FindCategoriesByIDs(ctx context.Context, categoryIDs []uuid.UUID) ([]entity.NewsCategory, error)
 }
 
 type newsArticleRepositoryImpl struct {
@@ -193,4 +206,98 @@ func (r *newsArticleRepositoryImpl) FindSlugByIDAndLang(
 	}
 
 	return slug, nil
+}
+
+func (r *newsArticleRepositoryImpl) FindAll(ctx context.Context) ([]entity.NewsArticle, error) {
+	var items []entity.NewsArticle
+	if err := r.db.WithContext(ctx).
+		Preload("Translations").
+		Preload("Categories.Translations").
+		Order("published_at DESC").
+		Find(&items).Error; err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+func (r *newsArticleRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*entity.NewsArticle, error) {
+	var item entity.NewsArticle
+	if err := r.db.WithContext(ctx).
+		Preload("Translations").
+		Preload("Categories.Translations").
+		First(&item, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &item, nil
+}
+
+func (r *newsArticleRepositoryImpl) Create(ctx context.Context, item *entity.NewsArticle) error {
+	return r.db.WithContext(ctx).Create(item).Error
+}
+
+func (r *newsArticleRepositoryImpl) Update(ctx context.Context, item *entity.NewsArticle) error {
+	return r.db.WithContext(ctx).
+		Model(&entity.NewsArticle{}).
+		Where("id = ?", item.ID).
+		Updates(map[string]interface{}{
+			"is_active":    item.IsActive,
+			"published_at": item.PublishedAt,
+			"image_path":   item.ImagePath,
+			"uploaded_by":  item.UploadedBy,
+		}).Error
+}
+
+func (r *newsArticleRepositoryImpl) UpsertTranslation(ctx context.Context, item *entity.NewsArticleTranslation) error {
+	return r.db.WithContext(ctx).
+		Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "article_id"}, {Name: "language"}},
+			DoUpdates: clause.AssignmentColumns([]string{"slug", "title", "content", "meta_title", "meta_description", "meta_keywords", "updated_at"}),
+		}).
+		Create(item).Error
+}
+
+func (r *newsArticleRepositoryImpl) DeleteByID(ctx context.Context, id uuid.UUID) error {
+	return r.db.WithContext(ctx).Delete(&entity.NewsArticle{}, "id = ?", id).Error
+}
+
+func (r *newsArticleRepositoryImpl) IsSlugExists(ctx context.Context, slug, lang string, excludeArticleID *uuid.UUID) (bool, error) {
+	query := r.db.WithContext(ctx).
+		Table("news_article_translations").
+		Where("slug = ?", slug).
+		Where("language = ?", strings.ToUpper(lang))
+
+	if excludeArticleID != nil {
+		query = query.Where("article_id <> ?", *excludeArticleID)
+	}
+
+	var count int64
+	if err := query.Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *newsArticleRepositoryImpl) ReplaceCategories(ctx context.Context, articleID uuid.UUID, categoryIDs []uuid.UUID) error {
+	article := &entity.NewsArticle{ID: articleID}
+
+	categories := make([]entity.NewsCategory, 0, len(categoryIDs))
+	for _, id := range categoryIDs {
+		categories = append(categories, entity.NewsCategory{ID: id})
+	}
+
+	return r.db.WithContext(ctx).Model(article).Association("Categories").Replace(&categories)
+}
+
+func (r *newsArticleRepositoryImpl) FindCategoriesByIDs(ctx context.Context, categoryIDs []uuid.UUID) ([]entity.NewsCategory, error) {
+	if len(categoryIDs) == 0 {
+		return []entity.NewsCategory{}, nil
+	}
+	var categories []entity.NewsCategory
+	if err := r.db.WithContext(ctx).
+		Preload("Translations").
+		Where("id IN ?", categoryIDs).
+		Find(&categories).Error; err != nil {
+		return nil, err
+	}
+	return categories, nil
 }
