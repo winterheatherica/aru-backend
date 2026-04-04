@@ -221,6 +221,10 @@ func Bootstrap(config *BootstrapConfig) {
 	)
 	spaceRoomAdminController := http.NewSpaceRoomAdminController(spaceRoomAdminUsecase)
 
+	// --- Admin Service Certification Module ---
+	serviceCertificationAdminUsecase := admin.NewServiceCertificationUsecase(serviceCertificationRepo)
+	serviceCertificationAdminController := http.NewServiceCertificationAdminController(serviceCertificationAdminUsecase)
+
 	// --- Admin User Module ---
 	userAdminUsecase := admin.NewUserUsecase(userRepo)
 	userAdminController := http.NewUserAdminController(userAdminUsecase)
@@ -247,17 +251,18 @@ func Bootstrap(config *BootstrapConfig) {
 		ArticleController:  articleController,
 		CategoryController: categoryController,
 
-		HeroAdminController:          heroAdminController,
-		AwardAdminController:         awardAdminController,
-		CareerVacancyAdminController: careerVacancyAdminController,
-		ClientAdminController:        clientAdminController,
-		PartnerAdminController:       partnerAdminController,
-		PromoSlideAdminController:    promoSlideAdminController,
-		HistoryAdminController:       historyAdminController,
-		NewsCategoryAdminController:  newsCategoryAdminController,
-		NewsArticleAdminController:   newsArticleAdminController,
-		SpaceRoomAdminController:     spaceRoomAdminController,
-		UserAdminController:          userAdminController,
+		HeroAdminController:                 heroAdminController,
+		AwardAdminController:                awardAdminController,
+		CareerVacancyAdminController:        careerVacancyAdminController,
+		ClientAdminController:               clientAdminController,
+		PartnerAdminController:              partnerAdminController,
+		PromoSlideAdminController:           promoSlideAdminController,
+		HistoryAdminController:              historyAdminController,
+		NewsCategoryAdminController:         newsCategoryAdminController,
+		NewsArticleAdminController:          newsArticleAdminController,
+		SpaceRoomAdminController:            spaceRoomAdminController,
+		ServiceCertificationAdminController: serviceCertificationAdminController,
+		UserAdminController:                 userAdminController,
 	}
 
 	routeConfig.Setup()

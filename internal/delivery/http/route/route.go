@@ -24,17 +24,18 @@ type RouteConfig struct {
 	ArticleController  *http.ArticleController
 	CategoryController *http.CategoryController
 
-	HeroAdminController          *http.HeroAdminController
-	AwardAdminController         *http.AwardAdminController
-	CareerVacancyAdminController *http.CareerVacancyAdminController
-	ClientAdminController        *http.ClientAdminController
-	PartnerAdminController       *http.PartnerAdminController
-	PromoSlideAdminController    *http.PromoSlideAdminController
-	HistoryAdminController       *http.HistoryAdminController
-	NewsCategoryAdminController  *http.NewsCategoryAdminController
-	NewsArticleAdminController   *http.NewsArticleAdminController
-	SpaceRoomAdminController     *http.SpaceRoomAdminController
-	UserAdminController          *http.UserAdminController
+	HeroAdminController                 *http.HeroAdminController
+	AwardAdminController                *http.AwardAdminController
+	CareerVacancyAdminController        *http.CareerVacancyAdminController
+	ClientAdminController               *http.ClientAdminController
+	PartnerAdminController              *http.PartnerAdminController
+	PromoSlideAdminController           *http.PromoSlideAdminController
+	HistoryAdminController              *http.HistoryAdminController
+	NewsCategoryAdminController         *http.NewsCategoryAdminController
+	NewsArticleAdminController          *http.NewsArticleAdminController
+	SpaceRoomAdminController            *http.SpaceRoomAdminController
+	ServiceCertificationAdminController *http.ServiceCertificationAdminController
+	UserAdminController                 *http.UserAdminController
 }
 
 func (c *RouteConfig) Setup() {
@@ -129,6 +130,12 @@ func (c *RouteConfig) SetupAuthRoute() {
 	admin.Post("/space-room", c.SpaceRoomAdminController.Create)
 	admin.Put("/space-room/:id", c.SpaceRoomAdminController.Update)
 	admin.Delete("/space-room/:id", c.SpaceRoomAdminController.HardDelete)
+
+	admin.Get("/service-certification/service/:service", c.ServiceCertificationAdminController.ListByService)
+	admin.Get("/service-certification/:id", c.ServiceCertificationAdminController.GetByID)
+	admin.Post("/service-certification", c.ServiceCertificationAdminController.Create)
+	admin.Put("/service-certification/:id", c.ServiceCertificationAdminController.Update)
+	admin.Delete("/service-certification/:id", c.ServiceCertificationAdminController.HardDelete)
 
 	admin.Get("/user", c.UserAdminController.List)
 	admin.Get("/user/:id", c.UserAdminController.GetByID)
