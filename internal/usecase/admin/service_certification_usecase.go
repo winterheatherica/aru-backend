@@ -125,6 +125,19 @@ func (u *serviceCertificationUsecaseImpl) Update(ctx context.Context, id uuid.UU
 		return nil, err
 	}
 
+	if lang == "ID" {
+		enTitle := translateTextPtrServiceCert(input.Title, "id", "en")
+		enAlt := translateTextPtrServiceCert(input.Alt, "id", "en")
+		enCaption := translateTextPtrServiceCert(input.Caption, "id", "en")
+		_ = u.repo.UpsertTranslation(ctx, &entity.ServiceCertificationTranslation{
+			CertificationID: item.ID,
+			Language:        "EN",
+			Title:           enTitle,
+			Alt:             enAlt,
+			Caption:         enCaption,
+		})
+	}
+
 	fresh, err := u.repo.FindByID(ctx, item.ID)
 	if err != nil {
 		res := toServiceCertAdminItem(*item, lang)
