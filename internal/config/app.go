@@ -238,6 +238,10 @@ func Bootstrap(config *BootstrapConfig) {
 	serviceMatrixAdminUsecase := admin.NewServiceMatrixUsecase(serviceMatrixRepo)
 	serviceMatrixAdminController := http.NewServiceMatrixAdminController(serviceMatrixAdminUsecase)
 
+	// --- Admin Service Pricing Tier Module ---
+	servicePricingTierAdminUsecase := admin.NewServicePricingTierUsecase(servicePricingRepo)
+	servicePricingTierAdminController := http.NewServicePricingTierAdminController(servicePricingTierAdminUsecase)
+
 	// --- Admin User Module ---
 	userAdminUsecase := admin.NewUserUsecase(userRepo)
 	userAdminController := http.NewUserAdminController(userAdminUsecase)
@@ -277,6 +281,7 @@ func Bootstrap(config *BootstrapConfig) {
 		ServiceCertificationAdminController: serviceCertificationAdminController,
 		ServiceGalleryAdminController:       serviceGalleryAdminController,
 		ServiceMatrixAdminController:        serviceMatrixAdminController,
+		ServicePricingTierAdminController:   servicePricingTierAdminController,
 		UserAdminController:                 userAdminController,
 	}
 
