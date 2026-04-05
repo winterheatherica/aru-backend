@@ -225,6 +225,15 @@ func Bootstrap(config *BootstrapConfig) {
 	serviceCertificationAdminUsecase := admin.NewServiceCertificationUsecase(serviceCertificationRepo)
 	serviceCertificationAdminController := http.NewServiceCertificationAdminController(serviceCertificationAdminUsecase)
 
+	// --- Admin Service Gallery Module ---
+	serviceGalleryAdminUsecase := admin.NewServiceGalleryUsecase(
+		serviceGalleryRepo,
+		config.MinioClient,
+		config.MinioConfig.Bucket,
+		config.MinioConfig.PublicBaseURL,
+	)
+	serviceGalleryAdminController := http.NewServiceGalleryAdminController(serviceGalleryAdminUsecase)
+
 	// --- Admin Service Matrix Module ---
 	serviceMatrixAdminUsecase := admin.NewServiceMatrixUsecase(serviceMatrixRepo)
 	serviceMatrixAdminController := http.NewServiceMatrixAdminController(serviceMatrixAdminUsecase)
@@ -266,6 +275,7 @@ func Bootstrap(config *BootstrapConfig) {
 		NewsArticleAdminController:          newsArticleAdminController,
 		SpaceRoomAdminController:            spaceRoomAdminController,
 		ServiceCertificationAdminController: serviceCertificationAdminController,
+		ServiceGalleryAdminController:       serviceGalleryAdminController,
 		ServiceMatrixAdminController:        serviceMatrixAdminController,
 		UserAdminController:                 userAdminController,
 	}
