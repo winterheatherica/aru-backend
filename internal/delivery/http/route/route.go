@@ -35,6 +35,7 @@ type RouteConfig struct {
 	NewsArticleAdminController          *http.NewsArticleAdminController
 	SpaceRoomAdminController            *http.SpaceRoomAdminController
 	ServiceCertificationAdminController *http.ServiceCertificationAdminController
+	ServiceMatrixAdminController        *http.ServiceMatrixAdminController
 	UserAdminController                 *http.UserAdminController
 }
 
@@ -136,6 +137,12 @@ func (c *RouteConfig) SetupAuthRoute() {
 	admin.Post("/service-certification", c.ServiceCertificationAdminController.Create)
 	admin.Put("/service-certification/:id", c.ServiceCertificationAdminController.Update)
 	admin.Delete("/service-certification/:id", c.ServiceCertificationAdminController.HardDelete)
+
+	admin.Get("/service-matrix/service/:service", c.ServiceMatrixAdminController.ListByService)
+	admin.Get("/service-matrix/:id", c.ServiceMatrixAdminController.GetByID)
+	admin.Post("/service-matrix", c.ServiceMatrixAdminController.Create)
+	admin.Put("/service-matrix/:id", c.ServiceMatrixAdminController.Update)
+	admin.Delete("/service-matrix/:id", c.ServiceMatrixAdminController.HardDelete)
 
 	admin.Get("/user", c.UserAdminController.List)
 	admin.Get("/user/:id", c.UserAdminController.GetByID)
