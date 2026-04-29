@@ -33,14 +33,7 @@ func (c *ServiceController) GetServicePageBatch(ctx *fiber.Ctx) error {
 	result := make(map[string]interface{})
 
 	for _, service := range services {
-		data, err := c.Usecase.GetServicePage(ctx.Context(), service, lang)
-		if err != nil {
-			return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-				"error":   err.Error(),
-				"service": service,
-			})
-		}
-
+		data, _ := c.Usecase.GetServicePageIsolated(ctx.Context(), service, lang)
 		result[service] = data
 	}
 
