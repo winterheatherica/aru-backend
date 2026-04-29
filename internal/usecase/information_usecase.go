@@ -38,6 +38,10 @@ func (u *informationUsecaseImpl) GetInformation(
 	year *int,
 	page int,
 ) (*InformationResponse, error) {
+	res := &InformationResponse{
+		NewsCards: []model.NewsCard{},
+		NewsYears: []int{},
+	}
 
 	if page < 1 {
 		page = 1
@@ -46,27 +50,20 @@ func (u *informationUsecaseImpl) GetInformation(
 	const limit = 18
 	offset := (page - 1) * limit
 
-	entities, err := u.newsRepo.FindActiveCardList(ctx, lang, year, limit, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	cards := make([]model.NewsCard, 0, len(entities))
-
-	for _, e := range entities {
-		card := converter.NewsArticleToNewsCard(e, lang, u.baseURL)
-		if card != nil {
-			cards = append(cards, *card)
+	if entities, err := u.newsRepo.FindActiveCardList(ctx, lang, year, limit, offset); err == nil {
+		cards := make([]model.NewsCard, 0, len(entities))
+		for _, e := range entities {
+			card := converter.NewsArticleToNewsCard(e, lang, u.baseURL)
+			if card != nil {
+				cards = append(cards, *card)
+			}
 		}
+		res.NewsCards = cards
 	}
 
-	years, err := u.newsRepo.FindActiveYears(ctx)
-	if err != nil {
-		return nil, err
+	if years, err := u.newsRepo.FindActiveYears(ctx); err == nil {
+		res.NewsYears = years
 	}
 
-	return &InformationResponse{
-		NewsCards: cards,
-		NewsYears: years,
-	}, nil
+	return res, nil
 }

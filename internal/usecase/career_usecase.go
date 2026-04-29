@@ -28,10 +28,9 @@ func (u *careerUsecaseImpl) GetCareers(
 	ctx context.Context,
 	lang string,
 ) ([]model.CareerVacancy, error) {
-
 	entities, err := u.vacancyRepo.FindActiveOpen(ctx, lang)
 	if err != nil {
-		return nil, err
+		return []model.CareerVacancy{}, nil
 	}
 
 	return converter.CareerVacancyListToModel(entities, lang), nil

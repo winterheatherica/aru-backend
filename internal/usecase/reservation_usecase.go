@@ -35,19 +35,18 @@ func (u *reservationUsecaseImpl) GetReservationPage(
 	ctx context.Context,
 	lang string,
 ) (*ReservationResponse, error) {
+	res := &ReservationResponse{Rooms: []model.SpaceRoomCard{}}
 
 	roomEntities, err := u.roomRepo.FindActiveRoomList(ctx, lang)
 	if err != nil {
-		return nil, err
+		return res, nil
 	}
 
-	rooms := converter.SpaceRoomListToCardModel(
+	res.Rooms = converter.SpaceRoomListToCardModel(
 		roomEntities,
 		lang,
 		u.baseURL,
 	)
 
-	return &ReservationResponse{
-		Rooms: rooms,
-	}, nil
+	return res, nil
 }

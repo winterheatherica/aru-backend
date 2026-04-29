@@ -43,37 +43,31 @@ func (u *aboutUsecaseImpl) GetAbout(
 	ctx context.Context,
 	lang string,
 ) (*AboutResponse, error) {
-
-	historyEntities, err := u.historyRepo.FindActiveByLanguage(ctx, lang)
-	if err != nil {
-		return nil, err
+	res := &AboutResponse{
+		Histories:   []model.History{},
+		PartnerGrid: []model.Partner{},
+		Awards:      []model.Award{},
 	}
 
-	histories := converter.HistoryListToModel(historyEntities)
-
-	partnerEntities, err := u.partnerRepo.FindActiveForGrid(ctx, lang)
-	if err != nil {
-		return nil, err
+	if historyEntities, err := u.historyRepo.FindActiveByLanguage(ctx, lang); err == nil {
+		res.Histories = converter.HistoryListToModel(historyEntities)
 	}
-	partnerGrid := converter.PartnerListToModel(
-		partnerEntities,
-		lang,
-		u.baseURL,
-	)
 
-	awardEntities, err := u.awardRepo.FindActiveByLanguage(ctx, lang)
-	if err != nil {
-		return nil, err
+	if partnerEntities, err := u.partnerRepo.FindActiveForGrid(ctx, lang); err == nil {
+		res.PartnerGrid = converter.PartnerListToModel(
+			partnerEntities,
+			lang,
+			u.baseURL,
+		)
 	}
-	awards := converter.AwardListToModel(
-		awardEntities,
-		lang,
-		u.baseURL,
-	)
 
-	return &AboutResponse{
-		Histories:   histories,
-		PartnerGrid: partnerGrid,
-		Awards:      awards,
-	}, nil
+	if awardEntities, err := u.awardRepo.FindActiveByLanguage(ctx, lang); err == nil {
+		res.Awards = converter.AwardListToModel(
+			awardEntities,
+			lang,
+			u.baseURL,
+		)
+	}
+
+	return res, nil
 }
