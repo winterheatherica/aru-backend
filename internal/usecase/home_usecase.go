@@ -52,57 +52,48 @@ func (u *homeUsecaseImpl) GetHome(
 	ctx context.Context,
 	lang string,
 ) (*HomeResponse, error) {
-
-	heroSlides, err := u.heroRepo.FindActiveByLanguage(ctx, lang)
-	if err != nil {
-		return nil, err
-	}
-	hero := converter.HeroSlideListToModel(heroSlides, lang, u.baseURL)
-
-	promoSlides, err := u.promoRepo.FindActiveByLanguage(ctx, lang)
-	if err != nil {
-		return nil, err
-	}
-	promo := converter.PromoSlideListToModel(promoSlides, lang, u.baseURL)
-
-	partnerEntities, err := u.partnerRepo.FindActiveForScroller(ctx, lang)
-	if err != nil {
-		return nil, err
-	}
-	partnerScroller := converter.PartnerListToModel(
-		partnerEntities,
-		lang,
-		u.baseURL,
-	)
-
-	clientEntities, err := u.clientRepo.FindActiveForScroller(ctx, lang)
-	if err != nil {
-		return nil, err
-	}
-	clientScroller := converter.ClientListToModel(
-		clientEntities,
-		lang,
-		u.baseURL,
-	)
-
-	articles, err := u.newsRepo.FindLatest(ctx, lang, 5)
-	if err != nil {
-		return nil, err
+	res := &HomeResponse{
+		Hero:            []model.HeroSlide{},
+		Promo:           []model.PromoSlide{},
+		PartnerScroller: []model.Partner{},
+		ClientScroller:  []model.Client{},
+		News:            []model.NewsCard{},
 	}
 
-	news := make([]model.NewsCard, 0, len(articles))
-	for _, a := range articles {
-		card := converter.NewsArticleToNewsCard(a, lang, u.baseURL)
-		if card != nil {
-			news = append(news, *card)
+	if heroSlides, err := u.heroRepo.FindActiveByLanguage(ctx, lang); err == nil {
+		res.Hero = converter.HeroSlideListToModel(heroSlides, lang, u.baseURL)
+	}
+
+	if promoSlides, err := u.promoRepo.FindActiveByLanguage(ctx, lang); err == nil {
+		res.Promo = converter.PromoSlideListToModel(promoSlides, lang, u.baseURL)
+	}
+
+	if partnerEntities, err := u.partnerRepo.FindActiveForScroller(ctx, lang); err == nil {
+		res.PartnerScroller = converter.PartnerListToModel(
+			partnerEntities,
+			lang,
+			u.baseURL,
+		)
+	}
+
+	if clientEntities, err := u.clientRepo.FindActiveForScroller(ctx, lang); err == nil {
+		res.ClientScroller = converter.ClientListToModel(
+			clientEntities,
+			lang,
+			u.baseURL,
+		)
+	}
+
+	if articles, err := u.newsRepo.FindLatest(ctx, lang, 5); err == nil {
+		news := make([]model.NewsCard, 0, len(articles))
+		for _, a := range articles {
+			card := converter.NewsArticleToNewsCard(a, lang, u.baseURL)
+			if card != nil {
+				news = append(news, *card)
+			}
 		}
+		res.News = news
 	}
 
-	return &HomeResponse{
-		Hero:            hero,
-		Promo:           promo,
-		PartnerScroller: partnerScroller,
-		ClientScroller:  clientScroller,
-		News:            news,
-	}, nil
+	return res, nil
 }

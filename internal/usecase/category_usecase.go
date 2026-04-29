@@ -35,6 +35,10 @@ func (u *categoryUsecaseImpl) GetCategoryBySlug(
 		return nil, err
 	}
 
+	if entity == nil {
+		return nil, nil
+	}
+
 	category := converter.NewsCategoryToModel(*entity, lang)
 	if category == nil {
 		return nil, nil

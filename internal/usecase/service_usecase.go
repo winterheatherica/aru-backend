@@ -73,10 +73,14 @@ func (u *serviceUsecaseImpl) GetServicePage(
 	if err != nil {
 		return nil, err
 	}
-	matrix := converter.ServiceMatrixToModel(
-		*matrixEntity,
-		lang,
-	)
+
+	var matrix *model.ServiceMatrix
+	if matrixEntity != nil {
+		matrix = converter.ServiceMatrixToModel(
+			*matrixEntity,
+			lang,
+		)
+	}
 
 	certEntities, err := u.certificationRepo.FindActiveByService(ctx, service, lang)
 	if err != nil {
