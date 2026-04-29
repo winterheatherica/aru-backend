@@ -43,14 +43,9 @@ func (u *informationUsecaseImpl) GetInformation(
 		NewsYears: []int{},
 	}
 
-	if page < 1 {
-		page = 1
-	}
+	_ = page
 
-	const limit = 18
-	offset := (page - 1) * limit
-
-	if entities, err := u.newsRepo.FindActiveCardList(ctx, lang, year, limit, offset); err == nil {
+	if entities, err := u.newsRepo.FindActiveCardList(ctx, lang, year, 0, 0); err == nil {
 		cards := make([]model.NewsCard, 0, len(entities))
 		for _, e := range entities {
 			card := converter.NewsArticleToNewsCard(e, lang, u.baseURL)

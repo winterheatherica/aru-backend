@@ -103,9 +103,14 @@ func (r *newsArticleRepositoryImpl) FindActiveCardList(
 		Preload("Translations", "language = ?", lang).
 		Where("is_active = ?", true).
 		Where("deleted_at IS NULL").
-		Order("published_at DESC").
-		Limit(limit).
-		Offset(offset)
+		Order("published_at DESC")
+
+	if limit > 0 {
+		q = q.Limit(limit)
+		if offset > 0 {
+			q = q.Offset(offset)
+		}
+	}
 
 	if year != nil {
 		q = q.Where("EXTRACT(YEAR FROM published_at) = ?", *year)
