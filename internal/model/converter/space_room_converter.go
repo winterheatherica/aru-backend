@@ -1,6 +1,8 @@
 package converter
 
 import (
+	"sort"
+
 	"aru-backend/internal/entity"
 	"aru-backend/internal/model"
 )
@@ -77,9 +79,20 @@ func SpaceRoomToDetailModel(
 		return nil
 	}
 
-	images := make([]model.SpaceRoomImage, 0)
+	sortedImages := make([]entity.SpaceRoomImage, len(room.Images))
+	copy(sortedImages, room.Images)
+	sort.SliceStable(sortedImages, func(i, j int) bool {
+		iThumb := room.MainImageURL != nil && sortedImages[i].ImageURL == *room.MainImageURL
+		jThumb := room.MainImageURL != nil && sortedImages[j].ImageURL == *room.MainImageURL
+		if iThumb != jThumb {
+			return iThumb
+		}
+		return sortedImages[i].OrderIndex < sortedImages[j].OrderIndex
+	})
 
-	for _, img := range room.Images {
+	images := make([]model.SpaceRoomImage, 0, len(sortedImages))
+
+	for _, img := range sortedImages {
 		it := findSpaceRoomImageTranslation(img, lang)
 
 		url := BuildAssetURL(baseURL, img.ImageURL)

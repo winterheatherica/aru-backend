@@ -7,10 +7,16 @@ import (
 )
 
 func NewFiber(config *viper.Viper) *fiber.App {
+	bodyLimit := config.GetInt("web.bodyLimit")
+	if bodyLimit <= 0 {
+		bodyLimit = 50 * 1024 * 1024
+	}
+
 	var app = fiber.New(fiber.Config{
 		AppName:      config.GetString("app.name"),
 		ErrorHandler: NewErrorHandler(),
 		Prefork:      config.GetBool("web.prefork"),
+		BodyLimit:    bodyLimit,
 	})
 
 	app.Use(cors.New(cors.Config{
