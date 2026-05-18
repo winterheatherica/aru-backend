@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "",
+    "env": ""
+  },
+  "web": {
+    "prefork": false,
+    "port": ,
+    "bodyLimit": ,
+    "cors": {
+      "allowOrigins": "",
+      "allowMethods": "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+      "allowHeaders": "Origin, Content-Type, Accept, Authorization",
+      "allowCredentials": true
+    }
+  },
+  "log": {
+    "level": 6
+  },
+  "database": {
+    "username": "",
+    "password": "",
+    "host": "",
+    "port": ,
+    "name": "",
+    "pool": {
+      "idle": ,
+      "max": ,
+      "lifetime": 
+    }
+  },
+  "minio": {
+    "endpoint": "",
+    "accessKey": "",
+    "secretKey": "",
+    "useSSL": ,
+    "bucket": "",
+    "publicBaseURL": ""
+  },
+  "jwt": {
+    "secret": "",
+    "expiryHours": 
+  }
+}

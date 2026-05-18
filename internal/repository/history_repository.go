@@ -73,8 +73,8 @@ func (r *historyRepositoryImpl) Create(ctx context.Context, item *entity.History
 
 	var idStr string
 	err := r.db.WithContext(ctx).Raw(`
-		INSERT INTO histories (language, year, title, description, table_headers, table_rows, is_active, uploaded_by)
-		VALUES (?, ?, ?, ?, ?, ?::text[][], ?, ?)
+		INSERT INTO histories (language, year, title, description, table_headers, table_rows, is_active, is_machine_fallback, uploaded_by)
+		VALUES (?, ?, ?, ?, ?, ?::text[][], ?, ?, ?)
 		RETURNING id::text
 	`,
 		item.Language,
@@ -84,6 +84,7 @@ func (r *historyRepositoryImpl) Create(ctx context.Context, item *entity.History
 		pq.Array([]string(item.TableHeaders)),
 		rowsLiteral,
 		item.IsActive,
+		item.IsMachineFallback,
 		item.UploadedBy,
 	).Scan(&idStr).Error
 	if err != nil {
@@ -108,7 +109,8 @@ func (r *historyRepositoryImpl) Update(ctx context.Context, item *entity.History
 			description = ?,
 			table_headers = ?,
 			table_rows = ?::text[][],
-			is_active = ?
+			is_active = ?,
+			is_machine_fallback = ?
 		WHERE id = ?
 	`,
 		item.Language,
@@ -118,6 +120,7 @@ func (r *historyRepositoryImpl) Update(ctx context.Context, item *entity.History
 		pq.Array([]string(item.TableHeaders)),
 		rowsLiteral,
 		item.IsActive,
+		item.IsMachineFallback,
 		item.ID,
 	).Error
 }

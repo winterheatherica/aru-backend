@@ -23,6 +23,8 @@ type History struct {
 
 	IsActive bool `gorm:"column:is_active;default:true" json:"is_active"`
 
+	IsMachineFallback bool `gorm:"column:is_machine_fallback;default:false" json:"is_machine_fallback"`
+
 	UploadedBy *uuid.UUID `gorm:"column:uploaded_by" json:"uploaded_by"`
 
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime" json:"created_at"`

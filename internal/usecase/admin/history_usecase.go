@@ -3,6 +3,7 @@ package admin
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"aru-backend/internal/entity"
@@ -87,19 +88,22 @@ func (u *historyUsecaseImpl) Create(ctx context.Context, input model.HistoryUpse
 
 	if lang == "ID" {
 		if _, err := u.repo.FindByYearAndLanguage(ctx, *input.Year, "EN"); err == gorm.ErrRecordNotFound {
-			enTitle := translateTextPtrHistory(input.Title, "id", "en")
-			enDesc := translateTextPtrHistory(input.Description, "id", "en")
-			enHeaders, enRows := translateMatrix(headers, rows, "id", "en")
+			enTitle, fbTitle := translateTextPtrHistory(input.Title, "id", "en")
+			enDesc, fbDesc := translateTextPtrHistory(input.Description, "id", "en")
+			enHeaders, enRows, fbMatrix := translateMatrix(headers, rows, "id", "en")
 			enItem := &entity.History{
-				Language:     "EN",
-				Year:         input.Year,
-				Title:        enTitle,
-				Description:  enDesc,
-				TableHeaders: enHeaders,
-				TableRows:    toPgText2D(enRows),
-				IsActive:     input.IsActive,
+				Language:          "EN",
+				Year:              input.Year,
+				Title:             enTitle,
+				Description:       enDesc,
+				TableHeaders:      enHeaders,
+				TableRows:         toPgText2D(enRows),
+				IsActive:          input.IsActive,
+				IsMachineFallback: fbTitle || fbDesc || fbMatrix,
 			}
-			_ = u.repo.Create(ctx, enItem)
+			if cerr := u.repo.Create(ctx, enItem); cerr != nil {
+				log.Printf("history: failed to create EN auto-translation for year %d: %v", *input.Year, cerr)
+			}
 		}
 	}
 
@@ -136,6 +140,7 @@ func (u *historyUsecaseImpl) Update(ctx context.Context, id uuid.UUID, input mod
 	item.TableHeaders = headers
 	item.TableRows = toPgText2D(rows)
 	item.IsActive = input.IsActive
+	item.IsMachineFallback = false
 
 	if err := u.repo.Update(ctx, item); err != nil {
 		return nil, err
@@ -156,14 +161,15 @@ func (u *historyUsecaseImpl) HardDelete(ctx context.Context, id uuid.UUID) error
 
 func toHistoryAdminItem(h entity.History) model.HistoryAdminItem {
 	return model.HistoryAdminItem{
-		ID:           h.ID,
-		Language:     h.Language,
-		Year:         h.Year,
-		Title:        h.Title,
-		Description:  h.Description,
-		TableHeaders: []string(h.TableHeaders),
-		TableRows:    parsePgText2D(h.TableRows),
-		IsActive:     h.IsActive,
+		ID:                h.ID,
+		Language:          h.Language,
+		Year:              h.Year,
+		Title:             h.Title,
+		Description:       h.Description,
+		TableHeaders:      []string(h.TableHeaders),
+		TableRows:         parsePgText2D(h.TableRows),
+		IsActive:          h.IsActive,
+		IsMachineFallback: h.IsMachineFallback,
 	}
 }
 
@@ -259,49 +265,74 @@ func normalizeHistoryMatrix(headers []string, rows [][]string) ([]string, [][]st
 	return nHeaders, nRows
 }
 
-func translateTextPtrHistory(text *string, fromLang, toLang string) *string {
+// safeTranslate calls gtranslate with panic recovery. Returns (result, didFallback).
+// On empty input: ("", false). On error/panic/empty result: (trimmed original, true).
+// gtranslate scrapes Google Translate's free endpoint and can panic when Google
+// returns a rate-limit HTML page instead of JSON; recover() prevents the handler crash.
+func safeTranslate(text, fromLang, toLang string) (string, bool) {
+	trimmed := strings.TrimSpace(text)
+	if trimmed == "" {
+		return "", false
+	}
+
+	var translated string
+	var err error
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				err = fmt.Errorf("gtranslate panic: %v", r)
+			}
+		}()
+		translated, err = gtranslate.TranslateWithParams(trimmed, gtranslate.TranslationParams{
+			From: fromLang,
+			To:   toLang,
+		})
+	}()
+
+	if err != nil || strings.TrimSpace(translated) == "" {
+		if err != nil {
+			log.Printf("history: translate %s->%s fallback to source: %v", fromLang, toLang, err)
+		}
+		return trimmed, true
+	}
+	return strings.TrimSpace(translated), false
+}
+
+func translateTextPtrHistory(text *string, fromLang, toLang string) (*string, bool) {
 	if text == nil {
-		return nil
+		return nil, false
 	}
 	trimmed := strings.TrimSpace(*text)
 	if trimmed == "" {
-		return nil
+		return nil, false
 	}
-	translated, err := gtranslate.TranslateWithParams(trimmed, gtranslate.TranslationParams{From: fromLang, To: toLang})
-	if err != nil || strings.TrimSpace(translated) == "" {
-		fallback := trimmed
-		return &fallback
-	}
-	res := strings.TrimSpace(translated)
-	return &res
+	result, fallback := safeTranslate(trimmed, fromLang, toLang)
+	return &result, fallback
 }
 
-func translateText(text, fromLang, toLang string) string {
-	trimmed := strings.TrimSpace(text)
-	if trimmed == "" {
-		return ""
-	}
-	translated, err := gtranslate.TranslateWithParams(trimmed, gtranslate.TranslationParams{From: fromLang, To: toLang})
-	if err != nil || strings.TrimSpace(translated) == "" {
-		return trimmed
-	}
-	return strings.TrimSpace(translated)
-}
-
-func translateMatrix(headers []string, rows [][]string, fromLang, toLang string) ([]string, [][]string) {
+func translateMatrix(headers []string, rows [][]string, fromLang, toLang string) ([]string, [][]string, bool) {
+	anyFallback := false
 	enHeaders := make([]string, 0, len(headers))
 	for _, h := range headers {
-		enHeaders = append(enHeaders, translateText(h, fromLang, toLang))
+		v, fb := safeTranslate(h, fromLang, toLang)
+		if fb && strings.TrimSpace(h) != "" {
+			anyFallback = true
+		}
+		enHeaders = append(enHeaders, v)
 	}
 	enRows := make([][]string, 0, len(rows))
 	for _, r := range rows {
 		enRow := make([]string, 0, len(r))
 		for _, c := range r {
-			enRow = append(enRow, translateText(c, fromLang, toLang))
+			v, fb := safeTranslate(c, fromLang, toLang)
+			if fb && strings.TrimSpace(c) != "" {
+				anyFallback = true
+			}
+			enRow = append(enRow, v)
 		}
 		enRows = append(enRows, enRow)
 	}
-	return enHeaders, enRows
+	return enHeaders, enRows, anyFallback
 }
 
 func toPgText2D(rows [][]string) pgtype.TextArray {

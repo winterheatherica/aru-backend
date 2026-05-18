@@ -23,12 +23,13 @@ type HistoryUpsertInput struct {
 }
 
 type HistoryAdminItem struct {
-	ID           uuid.UUID  `json:"id"`
-	Language     string     `json:"language"`
-	Year         *int       `json:"year,omitempty"`
-	Title        *string    `json:"title,omitempty"`
-	Description  *string    `json:"description,omitempty"`
-	TableHeaders []string   `json:"table_headers,omitempty"`
-	TableRows    [][]string `json:"table_rows,omitempty"`
-	IsActive     bool       `json:"is_active"`
+	ID                uuid.UUID  `json:"id"`
+	Language          string     `json:"language"`
+	Year              *int       `json:"year,omitempty"`
+	Title             *string    `json:"title,omitempty"`
+	Description       *string    `json:"description,omitempty"`
+	TableHeaders      []string   `json:"table_headers,omitempty"`
+	TableRows         [][]string `json:"table_rows,omitempty"`
+	IsActive          bool       `json:"is_active"`
+	IsMachineFallback bool       `json:"is_machine_fallback"`
 }
