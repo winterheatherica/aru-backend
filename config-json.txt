@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "aru-backend",
+    "env": "local"
+  },
+  "web": {
+    "prefork": false,
+    "port": 3001,
+    "bodyLimit": 52428800,
+    "cors": {
+      "allowOrigins": "http://localhost:3000, http://127.0.0.1:3000",
+      "allowMethods": "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+      "allowHeaders": "Origin, Content-Type, Accept, Authorization",
+      "allowCredentials": true
+    }
+  },
+  "log": {
+    "level": 6
+  },
+  "database": {
+    "username": "postgres",
+    "password": "",
+    "host": "localhost",
+    "port": 5432,
+    "name": "db",
+    "pool": {
+      "idle": 10,
+      "max": 100,
+      "lifetime": 300
+    }
+  },
+  "minio": {
+    "endpoint": "127.0.0.1:9000",
+    "accessKey": "",
+    "secretKey": "",
+    "useSSL": false,
+    "bucket": "aru-assets",
+    "publicBaseURL": "http://127.0.0.1:9000/aru-assets"
+  },
+  "jwt": {
+    "secret": "secret",
+    "expiryHours": 24
+  }
+}
